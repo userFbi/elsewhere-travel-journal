@@ -727,7 +727,7 @@ function __start(){
    var np=g&&g.photos?g.photos.length:0,cv=SD.covers&&SD.covers[x.id],sp=splitName(x.t||'Trip');
    return{id:x.id,t:x.t||'Trip',sp:sp,long:sp.split('|').some(function(l){return l.length>11})?1:0,when:x.when||'',place:st.join(' \u00b7 ')||'India',states:st,
     note:x.note||(nm.length+' place'+(nm.length===1?'':'s')+(np?' \u00b7 '+np+' photo'+(np===1?'':'s'):'')),alt:x.t||'',
-    desc:x.desc||(nm.length>1?nm.join(' \u2192 '):nm[0]?'A trip to '+nm[0]+'.':''),
+    desc:x.desc||(nm.length?nm.length+' place'+(nm.length===1?'':'s')+(st.length?' across '+st.join(', '):'')+'.':''),
     img:cv?full(cv,1100):UNS+'photo-1464278533981-50106e6176b1?auto=format&fit=crop&w=1100&q=80',c:x.c||COLS[k%4]}})}
  TRIPS=TRIPS.map(function(t,k){return{t:t,k:k}}).sort(function(a,b){return wn(b.t.when)-wn(a.t.when)||a.k-b.k}).map(function(o){return o.t});
  var hsT=document.querySelector('.hs__track');
