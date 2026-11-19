@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Caveat:wght@500;700&family=Gochi+Hand&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#f3f1ec;--ink:#111;--card:#fff;--yellow:#ffe24a;--pink:#ff9ec4;--blue:#9ad0ff;--green:#b6f09c;--red:#ff7a7a;--sans:"Space Grotesk",system-ui,sans-serif;--hand:"Caveat",cursive;--pad:clamp(1rem,4vw,3rem)}
+:root{--bg:#f3f1ec;--ink:#111;--card:#fff;--yellow:#ffe24a;--pink:#ff9ec4;--blue:#9ad0ff;--green:#b6f09c;--red:#ff7a7a;--orange:#ffb970;--purple:#c7a8ff;--teal:#6fe3d0;--coral:#ff8d7a;--indigo:#a3b1ff;--lime:#d6ef6a;--sans:"Space Grotesk",system-ui,sans-serif;--hand:"Caveat",cursive;--pad:clamp(1rem,4vw,3rem)}
 *,*::before,*::after{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);background-image:radial-gradient(rgba(128,128,128,.22) 1px,transparent 1px);background-size:22px 22px;min-height:100vh}
 img{display:block;width:100%;height:100%;object-fit:cover}
@@ -49,6 +49,14 @@ h2{margin:0 0 .3rem;font-size:clamp(1.8rem,4vw,2.6rem);letter-spacing:-.03em}
 .ph input[type=number]{width:105px}
 .ph input{padding:.4rem .6rem;border:2px solid var(--ink);background:var(--card);font-weight:700}
 .ph .num{display:grid;place-items:center;width:2.2rem;height:2.2rem;border:2px solid var(--ink);border-radius:50%;font-weight:700;background:var(--yellow)}
+.grip{cursor:grab;touch-action:none;-webkit-user-select:none;user-select:none;display:grid;place-items:center;width:1.9rem;height:2.2rem;font-size:1.3rem;line-height:1;border:2px solid var(--ink);border-radius:8px;background:var(--bg)}
+.grip:hover{background:var(--yellow)}
+.place{position:relative}
+.pill[data-a^="trip|"]{cursor:grab;touch-action:none;-webkit-user-select:none;user-select:none;position:relative}
+.dragging{z-index:40;cursor:grabbing!important;box-shadow:6px 6px 0 var(--ink)!important}
+.place.dragging{background:var(--card);outline:2px solid var(--ink);padding:.8rem;transform:rotate(-.3deg)}
+.pill.dragging{background:var(--yellow)}
+body.drg,body.drg *{cursor:grabbing!important;-webkit-user-select:none;user-select:none}
 .pills{display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:1.2rem}
 .pill{cursor:pointer;padding:.45rem 1rem;border:2px solid var(--ink);border-radius:999px;background:var(--card);font-weight:700;font-size:.85rem}
 .pill[aria-pressed=true]{background:var(--yellow);box-shadow:3px 3px 0 var(--ink)}
@@ -88,17 +96,6 @@ h2{margin:0 0 .3rem;font-size:clamp(1.8rem,4vw,2.6rem);letter-spacing:-.03em}
 .fe{color:#b00;font-size:.85rem;margin:0;min-height:1.2em}
 .prev{display:flex;align-items:center;gap:.8rem;padding:.7rem;border:2px dashed var(--ink);font-size:.85rem}
 .prev b{padding:.3rem .9rem;border:2px solid var(--ink);border-radius:999px;background:var(--c);font-size:.85rem}
-#cmb{width:min(100%,440px);text-align:center;transform:rotate(.4deg);padding:2rem 1.6rem 1.5rem}
-#cmb .ico{width:64px;height:64px;margin:0 auto 1rem;display:grid;place-items:center;border:3px solid var(--ink);border-radius:50%;background:var(--red);box-shadow:3px 3px 0 var(--ink)}
-#cmb .ico svg{width:30px;height:30px}
-#cmb h2{margin:0 0 .5rem}
-#cmb p{margin:0;line-height:1.5;opacity:.85}
-#cmb .th{width:140px;margin:1rem auto 0;border:2px solid var(--ink);padding:5px;background:var(--bg);transform:rotate(-2deg)}
-#cmb .th div{aspect-ratio:4/3;overflow:hidden}
-#cmb .chips{display:flex;gap:.5rem;justify-content:center;flex-wrap:wrap;margin-top:1rem}
-#cmb .chips span{padding:.25rem .7rem;border:2px solid var(--ink);border-radius:999px;background:var(--yellow);font-weight:700;font-size:.8rem}
-#cmb .fa{justify-content:center}
-#cmb .warn{margin-top:1rem;font-size:.8rem;font-weight:700;color:#b00}
 @media(max-width:520px){.fr{grid-template-columns:1fr}}
 </style>
 </head>
@@ -110,25 +107,21 @@ h2{margin:0 0 .3rem;font-size:clamp(1.8rem,4vw,2.6rem);letter-spacing:-.03em}
 <div id="app" hidden>
 <header><div class="wrap hb"><span class="logo">Admin ✺</span>
  <div class="tabs" role="tablist"><button class="tab" data-t="home" role="tab">Home page</button><button class="tab" data-t="gallery" role="tab">Gallery</button><button class="tab" data-t="export" role="tab">Publish</button></div>
- <span class="pill" id="dirty" hidden style="background:var(--pink);font-size:.75rem">Unpublished changes</span><button class="btn sm y" id="pubq" type="button">Publish \u2191</button><button class="btn sm" id="out" type="button">Log out</button></div></header>
+ <span class="pill" id="dirty" hidden style="background:var(--pink);font-size:.75rem">Unpublished changes</span><button class="btn sm y" id="pubq" type="button">Publish ↑</button><button class="btn sm" id="out" type="button">Log out</button></div></header>
 <main class="wrap" id="view"></main>
 </div>
 <div class="mo" id="mo" hidden><form class="mf box" id="tf" novalidate><span class="tape"></span>
- <h2>New trip</h2><p class="lead">Fill in the basics \u2014 you can add all the photos afterwards.</p>
+ <h2>New trip</h2><p class="lead">Fill in the basics — you can add all the photos afterwards.</p>
  <div class="fx">
   <label class="fl">Trip name<input id="tfn" type="text" maxlength="40" placeholder="e.g. Spiti Valley" autocomplete="off" required></label>
   <div class="fr"><label class="fl">Month<select id="tfm"></select></label><label class="fl">Year<input id="tfy" type="number" min="1990" max="2100"></label></div>
   <div class="fr"><label class="fl">First place<em>Where did it start?</em><input id="tfp" type="text" maxlength="40" placeholder="e.g. Kaza"></label><label class="fl">State / country<input id="tfs" type="text" maxlength="40" placeholder="e.g. Himachal Pradesh"></label></div>
-  <div class="fl">Cover photo<label class="cvz" id="tfz"><span id="tfzt">drop a photo here<small>or click to browse \u2014 you can change it later</small></span><input id="tff" type="file" accept="image/*"></label></div>
-  <div class="fl">Card colour<div class="sw" id="tfc"><label><input type="radio" name="tc" value="--yellow" checked><span style="--c:var(--yellow)"></span></label><label><input type="radio" name="tc" value="--pink"><span style="--c:var(--pink)"></span></label><label><input type="radio" name="tc" value="--blue"><span style="--c:var(--blue)"></span></label><label><input type="radio" name="tc" value="--green"><span style="--c:var(--green)"></span></label></div></div>
+  <div class="fl">Cover photo<label class="cvz" id="tfz"><span id="tfzt">drop a photo here<small>or click to browse — you can change it later</small></span><input id="tff" type="file" accept="image/*"></label></div>
+  <div class="fl">Card colour<div class="sw" id="tfc"></div></div>
   <div class="prev" id="tfv" style="--c:var(--yellow)"><b id="tfvb">New trip</b><span>This is how the trip appears in the gallery tabs.</span></div>
   <p class="fe" id="tfe" role="alert"></p>
  </div>
- <div class="fa"><button class="btn" type="button" id="tfx">Cancel</button><button class="btn y" type="submit" id="tfok">Create trip \u2192</button></div></form></div>
-<div class="mo" id="cm" hidden role="alertdialog" aria-modal="true" aria-labelledby="cmt"><div class="mf box" id="cmb"><span class="tape"></span>
- <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M6 6l1 14h10l1-14"/><path d="M10 11v6M14 11v6"/></svg></div>
- <h2 id="cmt"></h2><p id="cmm"></p><div id="cmx"></div>
- <div class="fa"><button class="btn" type="button" id="cmn">Cancel</button><button class="btn r" type="button" id="cmy">Delete</button></div></div></div>
+ <div class="fa"><button class="btn" type="button" id="tfx">Cancel</button><button class="btn y" type="submit" id="tfok">Create trip →</button></div></form></div>
 <div id="toast" role="status" aria-live="polite"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -157,7 +150,7 @@ var GC={'harishchandragad|Pachnai village':[19.375,73.755],'harishchandragad|Kok
  'ganpatipule|Ganpatipule':[17.1456,73.268],'ganpatipule|Kasheli Beach':[16.99,73.31],'ganpatipule|Guhagar':[17.4833,73.1933],'ganpatipule|Jaigad Fort':[17.2945,73.2147],
  'rishikesh-chopta|Rishikesh':[30.0869,78.2676],'rishikesh-chopta|Devprayag':[30.146,78.599],'rishikesh-chopta|Chopta':[30.388,79.098],'rishikesh-chopta|Tungnath':[30.4896,79.2186]};
 function defaults(){
- var S={hero:{src:'photo-1501555088652-021faa106b9b'},frames:[{src:'photo-1501555088652-021faa106b9b'},{src:'photo-1464822759023-fed622ff2c3b'}],covers:{},
+ var S={hero:{src:'photo-1501555088652-021faa106b9b'},covers:{},
   pinned:[['photo-1551632811-561732d1e306','Just meeee and the mountainsss!!!'],['photo-1501555088652-021faa106b9b','Golden hour crewwww'],['photo-1464822759023-fed622ff2c3b','Too tired to standd.'],['photo-1506905925346-21bda4d32df4','Peak visionsss onlyyy']].map(function(p){return{src:p[0],cap:p[1]}}),
   roll:[['photo-1500534623283-312aade485b7','Open horizons'],['photo-1441974231531-c6227db76b6e','Forest light'],['photo-1432405972618-c60b0225b8f9','Water in motion'],['photo-1518837695005-2083093ee35b','The coastline'],['photo-1472396961693-142e6e269027','Quiet encounters'],['photo-1470770841072-f978cf4d019e','Mountain lake'],['photo-1469474968028-56623f02e42e','Golden valley'],['photo-1506905925346-21bda4d32df4','High peaks']].map(function(p){return{src:p[0],cap:p[1]}}),
   gal:{},trips:TRIPS.map(function(t){return{id:t.id,t:t.t,when:t.when}}),tab:'home',trip:TRIPS[0].id};
@@ -201,18 +194,18 @@ function homeV(){
  h+='<section class="box sec"><h3>Hero portrait</h3><p class="h">The photo next to \u201cI\u2019m Tushar\u201d.</p><div class="grid" style="grid-template-columns:minmax(180px,260px)">'+tile(S.hero,{cov:1,acts:up('hero','Replace photo')})+'</div></section>';
  h+='<section class="box sec"><h3>Journey covers</h3><p class="h">Used in Selected journeys, the guide books, the map log and the gallery trip cards.</p><div class="grid">'+T().map(function(t){return'<div><b style="font-size:.9rem">'+esc(t.t)+'</b>'+tile(S.covers[t.id],{cov:1,acts:up('cover|'+t.id,'Replace photo')})+'</div>'}).join('')+'</div></section>';
  h+='<section class="box sec"><h3>Pinned memories</h3><p class="h">The 4 polaroids hanging on the pegboard.</p><div class="grid">'+S.pinned.map(function(p,i){return tile(p,{cap:'pin|'+i,acts:up('pin|'+i,'Replace')})}).join('')+'</div></section>';
- h+='<section class="box sec"><h3>Travel guides shelf frames</h3><p class="h">The 2 framed photos standing on the bookshelf (one on each shelf).</p><div class="grid">'+S.frames.map(function(f,i){return'<div><b style="font-size:.9rem">'+(i?'Lower shelf':'Upper shelf')+'</b>'+tile(f,{acts:up('frame|'+i,'Replace photo')})+'</div>'}).join('')+'</div></section>';
  h+='<section class="box sec"><h3>Camera roll <span style="font:500 .9rem var(--sans)">('+S.roll.length+' photos)</span></h3><p class="h">The photos you flip through on the camera. Drop several at once.</p><div class="dz" data-dz="roll">drop photos here<small>or use the button below</small></div><div class="row" style="margin-bottom:1rem">'+up('roll','+ Add photos',1)+'</div><div class="grid">'+S.roll.map(function(p,i){return tile(p,{cap:'roll|'+i,acts:'<button class="btn sm" data-a="mvroll|'+i+'|-1" type="button" aria-label="Move earlier">\u25c0</button><button class="btn sm" data-a="mvroll|'+i+'|1" type="button" aria-label="Move later">\u25b6</button><button class="btn sm r" data-a="rmroll|'+i+'" type="button">Delete</button>'})}).join('')+'</div></section>';
  view.innerHTML=h}
 function galV(){
  var tr=T().filter(function(t){return t.id===S.trip})[0],g=S.gal[S.trip],tot=0;g.places.forEach(function(p){tot+=p.photos.length});
- var h='<h2>Gallery photos</h2><p class="sub">Pick a trip, then add photos under each place. Each photo\u2019s caption shows on hover and in the viewer.</p><div class="pills">'+T().map(function(t){return'<button class="pill" type="button" data-a="trip|'+t.id+'" aria-pressed="'+(t.id===S.trip)+'">'+esc(t.t)+'</button>'}).join('')+'<button class="pill" type="button" data-a="addtrip" style="background:var(--green)">+ Add trip</button></div>';
- h+='<section class="box sec"><h3>'+esc(tr.t)+' <span style="font:500 .9rem var(--sans)">\u00b7 '+g.places.length+' places \u00b7 '+tot+' photos</span></h3><p class="h">Place order here is the route order on the site.</p>'+
+ var h='<h2>Gallery photos</h2><p class="sub">Pick a trip, then add photos under each place. Each photo\u2019s caption shows on hover and in the viewer. Drag the trip tabs to reorder them.</p><div class="pills">'+T().map(function(t){return'<button class="pill" type="button" data-a="trip|'+t.id+'" aria-pressed="'+(t.id===S.trip)+'">'+esc(t.t)+'</button>'}).join('')+'<button class="pill" type="button" data-a="addtrip" style="background:var(--green)">+ Add trip</button></div>';
+ h+='<section class="box sec"><h3>'+esc(tr.t)+' <span style="font:500 .9rem var(--sans)">\u00b7 '+g.places.length+' places \u00b7 '+tot+' photos</span></h3><p class="h">Newest stop is on top. The number is the stop\u2019s position in the route (1 = start). Drag \u283f to reorder \u2014 numbers update by themselves.</p>'+
  '<div class="ph"><input type="text" data-tn="1" value="'+esc(tr.t)+'" aria-label="Trip name" placeholder="Trip name"><input type="text" data-tw="1" value="'+esc(tr.when)+'" aria-label="When" placeholder="e.g. Mar 2026"><button class="btn sm r" type="button" data-a="rmtrip">Delete trip</button></div>'+
+ '<div class="ph"><input type="text" data-tnote="1" value="'+esc(tr.note||'')+'" aria-label="Sticker note" placeholder="Sticker note, e.g. a very hard climb" style="width:260px;max-width:100%"><input type="text" data-tdesc="1" value="'+esc(tr.desc||'')+'" aria-label="Short description" placeholder="Short description for the home page" style="flex:1;min-width:240px"></div>'+
  '<div class="row" style="margin:1rem 0;align-items:flex-start;gap:1rem"><div style="width:200px"><div class="it cov"><div class="im"><img src="'+esc(srcOf(S.covers[S.trip],700))+'" alt="" loading="lazy"></div></div></div><div><b>Trip cover</b><p class="h" style="margin:.3rem 0 .7rem;max-width:30rem">Shown on this trip\u2019s card at the top of the gallery and on the home page. Click <b>\u2605 Cover</b> on any photo below to use it, or upload a different image.</p>'+up('cover|'+S.trip,'Upload new cover')+'</div></div>'+
  '<button class="btn sm g" type="button" data-a="addplace">+ Add place</button>';
- g.places.forEach(function(p,pi){
-  h+='<div class="place"><div class="ph"><span class="num">'+(pi+1)+'</span><input type="text" data-pn="'+pi+'" value="'+esc(p.n)+'" aria-label="Place name" placeholder="Place name"><input type="text" data-ps="'+pi+'" value="'+esc(p.s)+'" aria-label="State" placeholder="State"><input type="number" step="any" data-plat="'+pi+'" value="'+(p.lat==null?'':p.lat)+'" aria-label="Latitude" placeholder="Lat"><input type="number" step="any" data-plng="'+pi+'" value="'+(p.lng==null?'':p.lng)+'" aria-label="Longitude" placeholder="Lng"><button class="btn sm b" data-a="find|'+pi+'" type="button">\ud83d\udccd Find on map</button><span style="font-size:.75rem;font-weight:700;color:'+(p.lat==null||p.lng==null?'#b00':'#2a7a2a')+'">'+(p.lat==null||p.lng==null?'no map pin yet':'on map \u2713')+'</span><button class="btn sm" data-a="mvplace|'+pi+'|-1" type="button">\u25b2</button><button class="btn sm" data-a="mvplace|'+pi+'|1" type="button">\u25bc</button><button class="btn sm r" data-a="rmplace|'+pi+'" type="button">Delete place</button></div>'+
+ g.places.map(function(p,pi){return pi}).reverse().forEach(function(pi){var p=g.places[pi];
+  h+='<div class="place" data-pi="'+pi+'"><div class="ph"><span class="grip" title="Drag to reorder" aria-label="Drag to reorder">\u283f</span><span class="num">'+(pi+1)+'</span><input type="text" data-pn="'+pi+'" value="'+esc(p.n)+'" aria-label="Place name" placeholder="Place name"><input type="text" data-ps="'+pi+'" value="'+esc(p.s)+'" aria-label="State" placeholder="State"><input type="number" step="any" data-plat="'+pi+'" value="'+(p.lat==null?'':p.lat)+'" aria-label="Latitude" placeholder="Lat"><input type="number" step="any" data-plng="'+pi+'" value="'+(p.lng==null?'':p.lng)+'" aria-label="Longitude" placeholder="Lng"><button class="btn sm b" data-a="find|'+pi+'" type="button">\ud83d\udccd Find on map</button><span style="font-size:.75rem;font-weight:700;color:'+(p.lat==null||p.lng==null?'#b00':'#2a7a2a')+'">'+(p.lat==null||p.lng==null?'no map pin yet':'on map \u2713')+'</span><button class="btn sm r" data-a="rmplace|'+pi+'" type="button">Delete place</button></div>'+
   '<div class="dz" data-dz="gal|'+pi+'">drop photos for '+esc(p.n||'this place')+'<small>'+p.photos.length+' photo'+(p.photos.length===1?'':'s')+' so far</small></div><div class="row" style="margin-bottom:1rem">'+up('gal|'+pi,'+ Add photos',1)+'</div>'+
   '<div class="grid">'+p.photos.map(function(ph,i){return tile(ph,{cap:'ph|'+pi+'|'+i,acts:'<button class="btn sm'+(S.covers[S.trip]&&S.covers[S.trip].src===ph.src?' y':'')+'" data-a="cover|'+pi+'|'+i+'" type="button">\u2605 Cover</button><button class="btn sm" data-a="mvph|'+pi+'|'+i+'|-1" type="button" aria-label="Move earlier">\u25c0</button><button class="btn sm" data-a="mvph|'+pi+'|'+i+'|1" type="button" aria-label="Move later">\u25b6</button><button class="btn sm r" data-a="rmph|'+pi+'|'+i+'" type="button">Delete</button>'})}).join('')+'</div></div>'});
  h+='</section>';view.innerHTML=h}
@@ -228,14 +221,14 @@ function render(){[].forEach.call(document.querySelectorAll('.tab'),function(b){
 function softRender(){var y=scrollY;(S.tab==='home'?homeV:S.tab==='gallery'?galV:exportV)();scrollTo(0,y)}
 
 /* ---------- Export ---------- */
-function buildData(){var d={hero:S.hero.src,frames:S.frames.map(function(f){return{src:f.src}}),pinned:S.pinned.map(function(p){return{src:p.src,cap:p.cap}}),roll:S.roll.map(function(p){return{src:p.src,cap:p.cap}}),covers:{},gal:{},trips:S.trips.map(function(t){return{id:t.id,t:t.t,when:t.when,c:t.c||null}})};
+function buildData(){var d={hero:S.hero.src,pinned:S.pinned.map(function(p){return{src:p.src,cap:p.cap}}),roll:S.roll.map(function(p){return{src:p.src,cap:p.cap}}),covers:{},gal:{},trips:S.trips.map(function(t){return{id:t.id,t:t.t,when:t.when,c:t.c||null,note:t.note||'',desc:t.desc||''}})};
  T().forEach(function(t){d.covers[t.id]=S.covers[t.id].src;var pl=S.gal[t.id].places,ph=[];
   pl.forEach(function(p,pi){p.photos.forEach(function(x){ph.push([pi,x.src,x.cap])})});
   d.gal[t.id]={places:pl.map(function(p){return{n:p.n,s:p.s,lat:p.lat==null?null:p.lat,lng:p.lng==null?null:p.lng}}),photos:ph}});return d}
 function publish(btn){if(btn)btn.disabled=true;toast('Publishing\u2026');
  sb.from('site_data').upsert({id:1,data:buildData(),updated_at:new Date().toISOString()}).then(function(r){if(r.error)throw r.error;S.dirty=false;idbSet('state',S).catch(function(){});updDirty();if(S.tab==='export')softRender();toast('Published \u2014 your site is updated')})
   .catch(function(e){toast('Publish failed: '+(e&&e.message||e))}).then(function(){if(btn)btn.disabled=false})}
-function fromData(d){var D=defaults(),S2={hero:{src:d.hero||D.hero.src},frames:[0,1].map(function(i){return{src:(d.frames&&d.frames[i]&&d.frames[i].src)||D.frames[i].src}}),covers:{},pinned:[],roll:(d.roll||[]).map(function(p){return{src:p.src,cap:p.cap||''}}),gal:{},trips:d.trips&&d.trips.length?d.trips:D.trips,tab:'home',dirty:false};
+function fromData(d){var D=defaults(),S2={hero:{src:d.hero||D.hero.src},covers:{},pinned:[],roll:(d.roll||[]).map(function(p){return{src:p.src,cap:p.cap||''}}),gal:{},trips:d.trips&&d.trips.length?d.trips:D.trips,tab:'home',dirty:false};
  for(var i=0;i<4;i++){var p=(d.pinned||[])[i]||D.pinned[i];S2.pinned.push({src:p.src,cap:p.cap||''})}
  S2.trips.forEach(function(t){S2.covers[t.id]={src:(d.covers&&d.covers[t.id])||D.covers[t.id]&&D.covers[t.id].src||'photo-1464278533981-50106e6176b1'};
   var g=d.gal&&d.gal[t.id]||{places:[{n:'New place',s:''}],photos:[]};S2.gal[t.id]={places:g.places.map(function(p){var c=GC[t.id+'|'+p.n]||[null,null];return{n:p.n,s:p.s,lat:p.lat!=null?p.lat:c[0],lng:p.lng!=null?p.lng:c[1],photos:[]}})};
@@ -251,12 +244,17 @@ function geo(tid,pi,quiet){var p=S.gal[tid]&&S.gal[tid].places[pi];if(!p||!p.n.t
   .catch(function(){if(!quiet)toast('Map search failed \u2014 enter latitude and longitude manually')})}
 
 /* ---------- New trip form ---------- */
+var COLORS=['--yellow','--pink','--blue','--green','--orange','--purple','--teal','--coral','--indigo','--lime'];
+function autoColor(){var use={};COLORS.forEach(function(c){use[c]=0});S.trips.forEach(function(t){if(t.c&&use[t.c]!=null)use[t.c]++});
+ var last=S.trips[0]&&S.trips[0].c,min=Math.min.apply(null,COLORS.map(function(c){return use[c]})),pool=COLORS.filter(function(c){return use[c]===min&&c!==last});
+ if(!pool.length)pool=COLORS.filter(function(c){return c!==last});return pool[Math.floor(Math.random()*pool.length)]}
+function buildSw(sel){$('tfc').innerHTML=COLORS.map(function(c){return'<label><input type="radio" name="tc" value="'+c+'"'+(c===sel?' checked':'')+'><span style="--c:var('+c+')" title="'+c.slice(2)+'"></span></label>'}).join('')}
 var MN=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],pend=null;
 $('tfm').innerHTML=MN.map(function(m,i){return'<option value="'+m+'">'+['January','February','March','April','May','June','July','August','September','October','November','December'][i]+'</option>'}).join('');
 function tfPrev(){var n=$('tfn').value.trim()||'New trip',c=(document.querySelector('input[name=tc]:checked')||{}).value||'--yellow';$('tfvb').textContent=n;$('tfv').style.setProperty('--c','var('+c+')')}
 function tfCover(files){if(!files||!files[0])return;$('tfe').textContent='';addFiles([files[0]],'covers',1800).then(function(r){if(!r[0])return;pend=r[0];
  $('tfz').innerHTML='<img src="'+srcOf(pend)+'" alt=""><span class="chg">Change photo</span><input id="tff" type="file" accept="image/*">';$('tff').onchange=function(){tfCover(this.files)}})}
-function openTrip(){pend=null;$('tf').reset();$('tfm').value=MN[new Date().getMonth()];$('tfy').value=new Date().getFullYear();$('tfe').textContent='';
+function openTrip(){pend=null;$('tf').reset();buildSw(autoColor());$('tfm').value=MN[new Date().getMonth()];$('tfy').value=new Date().getFullYear();$('tfe').textContent='';
  $('tfz').innerHTML='<span id="tfzt">drop a photo here<small>or click to browse \u2014 you can change it later</small></span><input id="tff" type="file" accept="image/*">';$('tff').onchange=function(){tfCover(this.files)};
  tfPrev();$('mo').hidden=false;setTimeout(function(){$('tfn').focus()},30)}
 function closeTrip(){$('mo').hidden=true}
@@ -274,21 +272,11 @@ $('tf').onsubmit=function(e){e.preventDefault();var nm=$('tfn').value.trim();
  S.covers[id]=pend?{src:pend.src,blob:pend.blob}:{src:'photo-1464278533981-50106e6176b1'};
  S.trip=id;S.tab='gallery';save();closeTrip();render();if(pl)geo(id,0,true);toast('Trip created \u2014 now add photos to '+(pl||'your first place'))};
 
-/* ---------- Styled confirm dialog (replaces the browser's plain confirm box) ---------- */
-var cmRes=null;
-function ask(o){return new Promise(function(res){cmRes=res;$('cmt').textContent=o.title;$('cmm').textContent=o.msg||'';
- $('cmx').innerHTML=(o.thumb?'<div class="th"><div><img src="'+esc(o.thumb)+'" alt=""></div></div>':'')+(o.chips?'<div class="chips">'+o.chips.map(function(c){return'<span>'+esc(c)+'</span>'}).join('')+'</div>':'')+(o.warn?'<p class="warn">'+esc(o.warn)+'</p>':'');
- $('cmy').textContent=o.ok||'Delete';$('cm').hidden=false;setTimeout(function(){$('cmn').focus()},30)})}
-function cmClose(v){if($('cm').hidden)return;$('cm').hidden=true;var r=cmRes;cmRes=null;if(r)r(v)}
-$('cmy').onclick=function(){cmClose(true)};$('cmn').onclick=function(){cmClose(false)};
-$('cm').addEventListener('mousedown',function(e){if(e.target===$('cm'))cmClose(false)});
-addEventListener('keydown',function(e){if(e.key==='Escape'&&!$('cm').hidden)cmClose(false)});
-
 /* ---------- Events ---------- */
 function setUp(kind,files,done){
  var a=kind.split('|'),k=a[0];
- if(k==='hero'||k==='cover'||k==='pin'||k==='frame'){addFiles([files[0]],k==='hero'?'home':k==='cover'?'covers':k==='frame'?'frames':'pinned',1800).then(function(r){if(!r[0])return;var it=r[0];
-  if(k==='hero')S.hero={src:it.src,blob:it.blob};else if(k==='frame')S.frames[+a[1]]={src:it.src};else if(k==='cover')S.covers[a[1]]={src:it.src,blob:it.blob};else{S.pinned[+a[1]].src=it.src;S.pinned[+a[1]].blob=it.blob}
+ if(k==='hero'||k==='cover'||k==='pin'){addFiles([files[0]],k==='hero'?'home':k==='cover'?'covers':'pinned',1800).then(function(r){if(!r[0])return;var it=r[0];
+  if(k==='hero')S.hero={src:it.src,blob:it.blob};else if(k==='cover')S.covers[a[1]]={src:it.src,blob:it.blob};else{S.pinned[+a[1]].src=it.src;S.pinned[+a[1]].blob=it.blob}
   save();softRender();toast('Photo updated')})}
  else if(k==='roll'){addFiles(files,'camera-roll',1800).then(function(r){r.forEach(function(it){S.roll.push(it)});if(r.length){save();softRender();toast('Added '+r.length+' photo'+(r.length>1?'s':''))}})}
  else if(k==='gal'){var pi=+a[1],tid=S.trip;addFiles(files,'gallery/'+tid,2000).then(function(r){var p=S.gal[tid].places[pi];if(!p)return;r.forEach(function(it){p.photos.push(it)});if(r.length){save();softRender();toast('Added '+r.length+' photo'+(r.length>1?'s':'')+' to '+p.n)}})}
@@ -297,33 +285,62 @@ document.addEventListener('change',function(e){var f=e.target;if(f.dataset&&f.da
 document.addEventListener('input',function(e){var t=e.target,d=t.dataset||{};if(!S)return;
  if(d.cap){var a=d.cap.split('|'),k=a[0];if(k==='pin')S.pinned[+a[1]].cap=t.value;else if(k==='roll')S.roll[+a[1]].cap=t.value;else if(k==='ph')S.gal[S.trip].places[+a[1]].photos[+a[2]].cap=t.value;save()}
  else if(d.tn!=null){T().filter(function(x){return x.id===S.trip})[0].t=t.value;save()}else if(d.tw!=null){T().filter(function(x){return x.id===S.trip})[0].when=t.value;save()}
+ else if(d.tnote!=null){T().filter(function(x){return x.id===S.trip})[0].note=t.value;save()}else if(d.tdesc!=null){T().filter(function(x){return x.id===S.trip})[0].desc=t.value;save()}
  else if(d.pn!=null){S.gal[S.trip].places[+d.pn].n=t.value;save()}else if(d.ps!=null){S.gal[S.trip].places[+d.ps].s=t.value;save()}
  else if(d.plat!=null||d.plng!=null){var pp=S.gal[S.trip].places[+(d.plat!=null?d.plat:d.plng)],v=parseFloat(t.value);if(d.plat!=null)pp.lat=isNaN(v)?null:v;else pp.lng=isNaN(v)?null:v;save()}});
 function mv(arr,i,d){var j=i+d;if(j<0||j>=arr.length)return;var x=arr.splice(i,1)[0];arr.splice(j,0,x)}
 document.addEventListener('click',function(e){
  var tb=e.target.closest('.tab');if(tb){S.tab=tb.dataset.t;saveUI();render();return}
  if(e.target.closest('#exp,#pubq')){publish(e.target.closest('#exp,#pubq'));return}
- if(e.target.id==='rst'){ask({title:'Discard draft?',msg:'Your unpublished changes will be lost and the page will reload what is currently live.',ok:'Discard draft'}).then(function(ok){if(ok)idbSet('state',null).catch(function(){}).then(function(){start();toast('Draft discarded')})});return}
+ if(e.target.id==='rst'){if(confirm('Discard your unpublished changes and reload what is live?')){idbSet('state',null).catch(function(){}).then(function(){start()})}return}
  if(e.target.id==='out'){sb.auth.signOut().then(function(){location.reload()});return}
  var b=e.target.closest('[data-a]');if(!b)return;var a=b.dataset.a.split('|'),k=a[0],g=S.gal[S.trip];
  if(k==='trip'){S.trip=a[1];saveUI();render();return}
  if(k==='addtrip'){openTrip();return}
- if(k==='rmtrip'){if(S.trips.length<2){toast('Keep at least one trip');return}var tr0=T().filter(function(x){return x.id===S.trip})[0],tid0=S.trip,np0=g.places.length,nph0=0;g.places.forEach(function(x){nph0+=x.photos.length});
-  ask({title:'Delete \u201c'+tr0.t+'\u201d?',msg:'This removes the whole trip from the site once you publish.',thumb:srcOf(S.covers[tid0],400),chips:[np0+' place'+(np0===1?'':'s'),nph0+' photo'+(nph0===1?'':'s'),tr0.when||'no date'],warn:'This can\u2019t be undone (unless you discard your draft before publishing).',ok:'Yes, delete trip'}).then(function(ok){if(!ok)return;
-   S.trips=S.trips.filter(function(x){return x.id!==tid0});delete S.gal[tid0];delete S.covers[tid0];S.trip=S.trips[0].id;save();render();toast('\u201c'+tr0.t+'\u201d deleted')});return}
+ if(k==='rmtrip'){if(S.trips.length<2){toast('Keep at least one trip');return}var tr0=T().filter(function(x){return x.id===S.trip})[0];if(!confirm('Delete the trip \u201c'+tr0.t+'\u201d with all its places and photos?'))return;
+  S.trips=S.trips.filter(function(x){return x.id!==S.trip});delete S.gal[S.trip];delete S.covers[S.trip];S.trip=S.trips[0].id;save();render();return}
  if(k==='cover'){var ph0=g.places[+a[1]].photos[+a[2]];S.covers[S.trip]={src:ph0.src,blob:ph0.blob};save();softRender();toast('Cover updated');return}
  if(k==='find'){geo(S.trip,+a[1]);return}
  if(k==='mvroll')mv(S.roll,+a[1],+a[2]);
- else if(k==='rmroll'){var ri=+a[1];ask({title:'Delete this photo?',msg:'It will be removed from the camera on the home page once you publish.',thumb:srcOf(S.roll[ri],400),ok:'Delete photo'}).then(function(ok){if(!ok)return;S.roll.splice(ri,1);save();softRender();toast('Photo deleted')});return}
+ else if(k==='rmroll'){if(!confirm('Delete this photo from the camera roll?'))return;S.roll.splice(+a[1],1)}
  else if(k==='mvph')mv(g.places[+a[1]].photos,+a[2],+a[3]);
- else if(k==='rmph'){var pi1=+a[1],ph1=+a[2],it1=g.places[pi1].photos[ph1];ask({title:'Delete this photo?',msg:(it1.cap?'\u201c'+it1.cap+'\u201d':'This photo')+' will be removed from the gallery once you publish.',thumb:srcOf(it1,400),ok:'Delete photo'}).then(function(ok){if(!ok)return;g.places[pi1].photos.splice(ph1,1);save();softRender();toast('Photo deleted')});return}
+ else if(k==='rmph'){if(!confirm('Delete this photo?'))return;g.places[+a[1]].photos.splice(+a[2],1)}
  else if(k==='mvplace')mv(g.places,+a[1],+a[2]);
- else if(k==='rmplace'){var pl1=+a[1],p=g.places[pl1];ask({title:'Delete \u201c'+(p.n||'this place')+'\u201d?',msg:'The place and its map pin will be removed from the site once you publish.',thumb:p.photos[0]?srcOf(p.photos[0],400):null,chips:[p.photos.length+' photo'+(p.photos.length===1?'':'s')],ok:'Delete place'}).then(function(ok){if(!ok)return;g.places.splice(pl1,1);save();softRender();toast('Place deleted')});return}
+ else if(k==='rmplace'){var p=g.places[+a[1]];if(!confirm('Delete \u201c'+p.n+'\u201d and its '+p.photos.length+' photo(s)?'))return;g.places.splice(+a[1],1)}
  else if(k==='addplace'){var last=g.places[g.places.length-1];g.places.push({n:'New place',s:last?last.s:'',photos:[]})}
- save();softRender()});
+ save();softRender();
+ if(k==='addplace'){var f=document.querySelector('.place input[data-pn]');if(f){f.focus();f.select();f.scrollIntoView({block:'nearest',behavior:'smooth'})}}});
 ['dragover','dragleave','drop'].forEach(function(ev){document.addEventListener(ev,function(e){var z=e.target.closest&&e.target.closest('[data-dz]');
  if(!z){if(ev!=='dragleave')e.preventDefault();return}e.preventDefault();
  if(ev==='dragover')z.classList.add('over');else if(ev==='dragleave')z.classList.remove('over');else{z.classList.remove('over');if(e.dataTransfer.files.length)setUp(z.dataset.dz,e.dataTransfer.files)}})});
+
+/* ---------- Drag to reorder (trip tabs + place entries) ---------- */
+var DR=null,supT=0;
+function dropPlaces(ids){var g=S.gal[S.trip],old=g.places;g.places=ids.slice().reverse().map(function(i){return old[i]});save();softRender()}
+function dropTrips(ids){var m={};S.trips.forEach(function(t){m[t.id]=t});S.trips=ids.map(function(i){return m[i]}).filter(Boolean);save();softRender()}
+document.addEventListener('pointerdown',function(e){if(!S||(e.pointerType==='mouse'&&e.button!==0))return;
+ var gr=e.target.closest('.grip'),el,o;
+ if(gr){el=gr.closest('.place');if(!el)return;o={box:el.parentNode,sel:'.place',axis:'y',key:function(n){return+n.dataset.pi},drop:dropPlaces}}
+ else{el=e.target.closest('.pill[data-a^="trip|"]');if(!el)return;o={box:el.parentNode,sel:'.pill[data-a^="trip|"]',axis:'x',key:function(n){return n.dataset.a.split('|')[1]},drop:dropTrips}}
+ var r=el.getBoundingClientRect();if(gr)e.preventDefault();
+ DR={el:el,o:o,x:e.clientX,y:e.clientY,cx:e.clientX,cy:e.clientY,gx:e.clientX-r.left,gy:e.clientY-r.top,on:false,raf:0}});
+document.addEventListener('pointermove',function(e){if(!DR)return;DR.cx=e.clientX;DR.cy=e.clientY;
+ if(!DR.on){if(Math.hypot(e.clientX-DR.x,e.clientY-DR.y)<6)return;DR.on=true;DR.el.classList.add('dragging');document.body.classList.add('drg');DR.raf=requestAnimationFrame(dragLoop)}
+ e.preventDefault()});
+function dragLoop(){if(!DR||!DR.on)return;var y=DR.cy;
+ if(DR.o.axis==='y'){if(y<70)scrollBy(0,-Math.ceil((70-y)/4));else if(y>innerHeight-70)scrollBy(0,Math.ceil((y-(innerHeight-70))/4))}
+ dragPlace();DR.raf=requestAnimationFrame(dragLoop)}
+function dragPlace(){var o=DR.o,el=DR.el,items=[].slice.call(o.box.querySelectorAll(o.sel)).filter(function(n){return n!==el}),best=null,bd=1e12;
+ items.forEach(function(n){var q=n.getBoundingClientRect(),dx=DR.cx-(q.left+q.width/2),dy=DR.cy-(q.top+q.height/2),d=o.axis==='y'?dy*dy:dx*dx+dy*dy*4;if(d<bd){bd=d;best=n}});
+ if(best){var q=best.getBoundingClientRect(),after=o.axis==='y'?DR.cy>q.top+q.height/2:DR.cx>q.left+q.width/2,ok=after?best.nextElementSibling===el:el.nextElementSibling===best;
+  if(!ok){var before=items.map(function(n){return[n,n.getBoundingClientRect()]});if(after)best.after(el);else best.before(el);
+   before.forEach(function(b){var n=b[0],a=n.getBoundingClientRect(),dx=b[1].left-a.left,dy=b[1].top-a.top;if((dx||dy)&&n.animate)n.animate([{translate:dx+'px '+dy+'px'},{translate:'0px 0px'}],{duration:200,easing:'ease-out'})})}}
+ el.style.translate='0px 0px';var n=el.getBoundingClientRect();el.style.translate=(DR.cx-DR.gx-n.left)+'px '+(DR.cy-DR.gy-n.top)+'px'}
+function dragEnd(){if(!DR)return;var d=DR;DR=null;cancelAnimationFrame(d.raf);if(!d.on)return;
+ document.body.classList.remove('drg');d.el.classList.remove('dragging');d.el.style.translate='';supT=Date.now();
+ d.o.drop([].map.call(d.o.box.querySelectorAll(d.o.sel),d.o.key))}
+document.addEventListener('pointerup',dragEnd);document.addEventListener('pointercancel',dragEnd);
+document.addEventListener('click',function(e){if(Date.now()-supT<300){e.stopPropagation();e.preventDefault()}},true);
 
 /* ---------- Supabase connection + login ---------- */
 var sb=null,BUCKET='site-images';
@@ -334,7 +351,6 @@ function start(){$('lock').hidden=true;$('app').hidden=false;
   if(draft&&draft.dirty&&draft.trips){S=draft;toast('Loaded your unpublished draft')}
   else if(rem.data&&rem.data.data&&rem.data.data.trips){S=fromData(rem.data.data)}
   else{S=defaults();S.dirty=true}
-  if(!S.frames)S.frames=defaults().frames;
   render();updDirty()})}
 (function(){
  var u=window.SUPABASE_URL,k=window.SUPABASE_ANON_KEY;
