@@ -714,6 +714,7 @@ function __start(){
  if(SD.covers)TRIPS.forEach(function(t){if(SD.covers[t.id])t.img=full(SD.covers[t.id],1100)});
  if(SD.hero){var hi=document.querySelector('.portrait img');if(hi)hi.src=full(SD.hero,900)}
  if(SD.pinned)document.querySelectorAll('.hc').forEach(function(c,n){var p=SD.pinned[n];if(!p)return;c.querySelector('img').src=full(p.src,700);c.querySelector('.cap2').textContent=p.cap})
+ ;if(SD.frames)document.querySelectorAll('.frame img').forEach(function(im,n){if(SD.frames[n]&&SD.frames[n].src)im.src=full(SD.frames[n].src,500)});
  var esc=function(x){return String(x).replace(/&/g,'&amp;')};
  var hsT=document.querySelector('.hs__track');
  TRIPS.forEach(function(t){var a=document.createElement('article');a.className='hs__item';

@@ -142,7 +142,7 @@ var GC={'harishchandragad|Pachnai village':[19.375,73.755],'harishchandragad|Kok
  'ganpatipule|Ganpatipule':[17.1456,73.268],'ganpatipule|Kasheli Beach':[16.99,73.31],'ganpatipule|Guhagar':[17.4833,73.1933],'ganpatipule|Jaigad Fort':[17.2945,73.2147],
  'rishikesh-chopta|Rishikesh':[30.0869,78.2676],'rishikesh-chopta|Devprayag':[30.146,78.599],'rishikesh-chopta|Chopta':[30.388,79.098],'rishikesh-chopta|Tungnath':[30.4896,79.2186]};
 function defaults(){
- var S={hero:{src:'photo-1501555088652-021faa106b9b'},covers:{},
+ var S={hero:{src:'photo-1501555088652-021faa106b9b'},frames:[{src:'photo-1501555088652-021faa106b9b'},{src:'photo-1464822759023-fed622ff2c3b'}],covers:{},
   pinned:[['photo-1551632811-561732d1e306','Just meeee and the mountainsss!!!'],['photo-1501555088652-021faa106b9b','Golden hour crewwww'],['photo-1464822759023-fed622ff2c3b','Too tired to standd.'],['photo-1506905925346-21bda4d32df4','Peak visionsss onlyyy']].map(function(p){return{src:p[0],cap:p[1]}}),
   roll:[['photo-1500534623283-312aade485b7','Open horizons'],['photo-1441974231531-c6227db76b6e','Forest light'],['photo-1432405972618-c60b0225b8f9','Water in motion'],['photo-1518837695005-2083093ee35b','The coastline'],['photo-1472396961693-142e6e269027','Quiet encounters'],['photo-1470770841072-f978cf4d019e','Mountain lake'],['photo-1469474968028-56623f02e42e','Golden valley'],['photo-1506905925346-21bda4d32df4','High peaks']].map(function(p){return{src:p[0],cap:p[1]}}),
   gal:{},trips:TRIPS.map(function(t){return{id:t.id,t:t.t,when:t.when}}),tab:'home',trip:TRIPS[0].id};
@@ -186,6 +186,7 @@ function homeV(){
  h+='<section class="box sec"><h3>Hero portrait</h3><p class="h">The photo next to \u201cI\u2019m Tushar\u201d.</p><div class="grid" style="grid-template-columns:minmax(180px,260px)">'+tile(S.hero,{cov:1,acts:up('hero','Replace photo')})+'</div></section>';
  h+='<section class="box sec"><h3>Journey covers</h3><p class="h">Used in Selected journeys, the guide books, the map log and the gallery trip cards.</p><div class="grid">'+T().map(function(t){return'<div><b style="font-size:.9rem">'+esc(t.t)+'</b>'+tile(S.covers[t.id],{cov:1,acts:up('cover|'+t.id,'Replace photo')})+'</div>'}).join('')+'</div></section>';
  h+='<section class="box sec"><h3>Pinned memories</h3><p class="h">The 4 polaroids hanging on the pegboard.</p><div class="grid">'+S.pinned.map(function(p,i){return tile(p,{cap:'pin|'+i,acts:up('pin|'+i,'Replace')})}).join('')+'</div></section>';
+ h+='<section class="box sec"><h3>Travel guides shelf frames</h3><p class="h">The 2 framed photos standing on the bookshelf (one on each shelf).</p><div class="grid">'+S.frames.map(function(f,i){return'<div><b style="font-size:.9rem">'+(i?'Lower shelf':'Upper shelf')+'</b>'+tile(f,{acts:up('frame|'+i,'Replace photo')})+'</div>'}).join('')+'</div></section>';
  h+='<section class="box sec"><h3>Camera roll <span style="font:500 .9rem var(--sans)">('+S.roll.length+' photos)</span></h3><p class="h">The photos you flip through on the camera. Drop several at once.</p><div class="dz" data-dz="roll">drop photos here<small>or use the button below</small></div><div class="row" style="margin-bottom:1rem">'+up('roll','+ Add photos',1)+'</div><div class="grid">'+S.roll.map(function(p,i){return tile(p,{cap:'roll|'+i,acts:'<button class="btn sm" data-a="mvroll|'+i+'|-1" type="button" aria-label="Move earlier">\u25c0</button><button class="btn sm" data-a="mvroll|'+i+'|1" type="button" aria-label="Move later">\u25b6</button><button class="btn sm r" data-a="rmroll|'+i+'" type="button">Delete</button>'})}).join('')+'</div></section>';
  view.innerHTML=h}
 function galV(){
@@ -212,14 +213,14 @@ function render(){[].forEach.call(document.querySelectorAll('.tab'),function(b){
 function softRender(){var y=scrollY;(S.tab==='home'?homeV:S.tab==='gallery'?galV:exportV)();scrollTo(0,y)}
 
 /* ---------- Export ---------- */
-function buildData(){var d={hero:S.hero.src,pinned:S.pinned.map(function(p){return{src:p.src,cap:p.cap}}),roll:S.roll.map(function(p){return{src:p.src,cap:p.cap}}),covers:{},gal:{},trips:S.trips.map(function(t){return{id:t.id,t:t.t,when:t.when,c:t.c||null}})};
+function buildData(){var d={hero:S.hero.src,frames:S.frames.map(function(f){return{src:f.src}}),pinned:S.pinned.map(function(p){return{src:p.src,cap:p.cap}}),roll:S.roll.map(function(p){return{src:p.src,cap:p.cap}}),covers:{},gal:{},trips:S.trips.map(function(t){return{id:t.id,t:t.t,when:t.when,c:t.c||null}})};
  T().forEach(function(t){d.covers[t.id]=S.covers[t.id].src;var pl=S.gal[t.id].places,ph=[];
   pl.forEach(function(p,pi){p.photos.forEach(function(x){ph.push([pi,x.src,x.cap])})});
   d.gal[t.id]={places:pl.map(function(p){return{n:p.n,s:p.s,lat:p.lat==null?null:p.lat,lng:p.lng==null?null:p.lng}}),photos:ph}});return d}
 function publish(btn){if(btn)btn.disabled=true;toast('Publishing\u2026');
  sb.from('site_data').upsert({id:1,data:buildData(),updated_at:new Date().toISOString()}).then(function(r){if(r.error)throw r.error;S.dirty=false;idbSet('state',S).catch(function(){});updDirty();if(S.tab==='export')softRender();toast('Published \u2014 your site is updated')})
   .catch(function(e){toast('Publish failed: '+(e&&e.message||e))}).then(function(){if(btn)btn.disabled=false})}
-function fromData(d){var D=defaults(),S2={hero:{src:d.hero||D.hero.src},covers:{},pinned:[],roll:(d.roll||[]).map(function(p){return{src:p.src,cap:p.cap||''}}),gal:{},trips:d.trips&&d.trips.length?d.trips:D.trips,tab:'home',dirty:false};
+function fromData(d){var D=defaults(),S2={hero:{src:d.hero||D.hero.src},frames:[0,1].map(function(i){return{src:(d.frames&&d.frames[i]&&d.frames[i].src)||D.frames[i].src}}),covers:{},pinned:[],roll:(d.roll||[]).map(function(p){return{src:p.src,cap:p.cap||''}}),gal:{},trips:d.trips&&d.trips.length?d.trips:D.trips,tab:'home',dirty:false};
  for(var i=0;i<4;i++){var p=(d.pinned||[])[i]||D.pinned[i];S2.pinned.push({src:p.src,cap:p.cap||''})}
  S2.trips.forEach(function(t){S2.covers[t.id]={src:(d.covers&&d.covers[t.id])||D.covers[t.id]&&D.covers[t.id].src||'photo-1464278533981-50106e6176b1'};
   var g=d.gal&&d.gal[t.id]||{places:[{n:'New place',s:''}],photos:[]};S2.gal[t.id]={places:g.places.map(function(p){var c=GC[t.id+'|'+p.n]||[null,null];return{n:p.n,s:p.s,lat:p.lat!=null?p.lat:c[0],lng:p.lng!=null?p.lng:c[1],photos:[]}})};
@@ -261,8 +262,8 @@ $('tf').onsubmit=function(e){e.preventDefault();var nm=$('tfn').value.trim();
 /* ---------- Events ---------- */
 function setUp(kind,files,done){
  var a=kind.split('|'),k=a[0];
- if(k==='hero'||k==='cover'||k==='pin'){addFiles([files[0]],k==='hero'?'home':k==='cover'?'covers':'pinned',1800).then(function(r){if(!r[0])return;var it=r[0];
-  if(k==='hero')S.hero={src:it.src,blob:it.blob};else if(k==='cover')S.covers[a[1]]={src:it.src,blob:it.blob};else{S.pinned[+a[1]].src=it.src;S.pinned[+a[1]].blob=it.blob}
+ if(k==='hero'||k==='cover'||k==='pin'||k==='frame'){addFiles([files[0]],k==='hero'?'home':k==='cover'?'covers':k==='frame'?'frames':'pinned',1800).then(function(r){if(!r[0])return;var it=r[0];
+  if(k==='hero')S.hero={src:it.src,blob:it.blob};else if(k==='frame')S.frames[+a[1]]={src:it.src};else if(k==='cover')S.covers[a[1]]={src:it.src,blob:it.blob};else{S.pinned[+a[1]].src=it.src;S.pinned[+a[1]].blob=it.blob}
   save();softRender();toast('Photo updated')})}
  else if(k==='roll'){addFiles(files,'camera-roll',1800).then(function(r){r.forEach(function(it){S.roll.push(it)});if(r.length){save();softRender();toast('Added '+r.length+' photo'+(r.length>1?'s':''))}})}
  else if(k==='gal'){var pi=+a[1],tid=S.trip;addFiles(files,'gallery/'+tid,2000).then(function(r){var p=S.gal[tid].places[pi];if(!p)return;r.forEach(function(it){p.photos.push(it)});if(r.length){save();softRender();toast('Added '+r.length+' photo'+(r.length>1?'s':'')+' to '+p.n)}})}
@@ -307,6 +308,7 @@ function start(){$('lock').hidden=true;$('app').hidden=false;
   if(draft&&draft.dirty&&draft.trips){S=draft;toast('Loaded your unpublished draft')}
   else if(rem.data&&rem.data.data&&rem.data.data.trips){S=fromData(rem.data.data)}
   else{S=defaults();S.dirty=true}
+  if(!S.frames)S.frames=defaults().frames;
   render();updDirty()})}
 (function(){
  var u=window.SUPABASE_URL,k=window.SUPABASE_ANON_KEY;
