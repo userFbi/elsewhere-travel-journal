@@ -88,6 +88,17 @@ h2{margin:0 0 .3rem;font-size:clamp(1.8rem,4vw,2.6rem);letter-spacing:-.03em}
 .fe{color:#b00;font-size:.85rem;margin:0;min-height:1.2em}
 .prev{display:flex;align-items:center;gap:.8rem;padding:.7rem;border:2px dashed var(--ink);font-size:.85rem}
 .prev b{padding:.3rem .9rem;border:2px solid var(--ink);border-radius:999px;background:var(--c);font-size:.85rem}
+#cmb{width:min(100%,440px);text-align:center;transform:rotate(.4deg);padding:2rem 1.6rem 1.5rem}
+#cmb .ico{width:64px;height:64px;margin:0 auto 1rem;display:grid;place-items:center;border:3px solid var(--ink);border-radius:50%;background:var(--red);box-shadow:3px 3px 0 var(--ink)}
+#cmb .ico svg{width:30px;height:30px}
+#cmb h2{margin:0 0 .5rem}
+#cmb p{margin:0;line-height:1.5;opacity:.85}
+#cmb .th{width:140px;margin:1rem auto 0;border:2px solid var(--ink);padding:5px;background:var(--bg);transform:rotate(-2deg)}
+#cmb .th div{aspect-ratio:4/3;overflow:hidden}
+#cmb .chips{display:flex;gap:.5rem;justify-content:center;flex-wrap:wrap;margin-top:1rem}
+#cmb .chips span{padding:.25rem .7rem;border:2px solid var(--ink);border-radius:999px;background:var(--yellow);font-weight:700;font-size:.8rem}
+#cmb .fa{justify-content:center}
+#cmb .warn{margin-top:1rem;font-size:.8rem;font-weight:700;color:#b00}
 @media(max-width:520px){.fr{grid-template-columns:1fr}}
 </style>
 </head>
@@ -114,6 +125,10 @@ h2{margin:0 0 .3rem;font-size:clamp(1.8rem,4vw,2.6rem);letter-spacing:-.03em}
   <p class="fe" id="tfe" role="alert"></p>
  </div>
  <div class="fa"><button class="btn" type="button" id="tfx">Cancel</button><button class="btn y" type="submit" id="tfok">Create trip \u2192</button></div></form></div>
+<div class="mo" id="cm" hidden role="alertdialog" aria-modal="true" aria-labelledby="cmt"><div class="mf box" id="cmb"><span class="tape"></span>
+ <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M6 6l1 14h10l1-14"/><path d="M10 11v6M14 11v6"/></svg></div>
+ <h2 id="cmt"></h2><p id="cmm"></p><div id="cmx"></div>
+ <div class="fa"><button class="btn" type="button" id="cmn">Cancel</button><button class="btn r" type="button" id="cmy">Delete</button></div></div></div>
 <div id="toast" role="status" aria-live="polite"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -259,6 +274,16 @@ $('tf').onsubmit=function(e){e.preventDefault();var nm=$('tfn').value.trim();
  S.covers[id]=pend?{src:pend.src,blob:pend.blob}:{src:'photo-1464278533981-50106e6176b1'};
  S.trip=id;S.tab='gallery';save();closeTrip();render();if(pl)geo(id,0,true);toast('Trip created \u2014 now add photos to '+(pl||'your first place'))};
 
+/* ---------- Styled confirm dialog (replaces the browser's plain confirm box) ---------- */
+var cmRes=null;
+function ask(o){return new Promise(function(res){cmRes=res;$('cmt').textContent=o.title;$('cmm').textContent=o.msg||'';
+ $('cmx').innerHTML=(o.thumb?'<div class="th"><div><img src="'+esc(o.thumb)+'" alt=""></div></div>':'')+(o.chips?'<div class="chips">'+o.chips.map(function(c){return'<span>'+esc(c)+'</span>'}).join('')+'</div>':'')+(o.warn?'<p class="warn">'+esc(o.warn)+'</p>':'');
+ $('cmy').textContent=o.ok||'Delete';$('cm').hidden=false;setTimeout(function(){$('cmn').focus()},30)})}
+function cmClose(v){if($('cm').hidden)return;$('cm').hidden=true;var r=cmRes;cmRes=null;if(r)r(v)}
+$('cmy').onclick=function(){cmClose(true)};$('cmn').onclick=function(){cmClose(false)};
+$('cm').addEventListener('mousedown',function(e){if(e.target===$('cm'))cmClose(false)});
+addEventListener('keydown',function(e){if(e.key==='Escape'&&!$('cm').hidden)cmClose(false)});
+
 /* ---------- Events ---------- */
 function setUp(kind,files,done){
  var a=kind.split('|'),k=a[0];
@@ -278,21 +303,22 @@ function mv(arr,i,d){var j=i+d;if(j<0||j>=arr.length)return;var x=arr.splice(i,1
 document.addEventListener('click',function(e){
  var tb=e.target.closest('.tab');if(tb){S.tab=tb.dataset.t;saveUI();render();return}
  if(e.target.closest('#exp,#pubq')){publish(e.target.closest('#exp,#pubq'));return}
- if(e.target.id==='rst'){if(confirm('Discard your unpublished changes and reload what is live?')){idbSet('state',null).catch(function(){}).then(function(){start()})}return}
+ if(e.target.id==='rst'){ask({title:'Discard draft?',msg:'Your unpublished changes will be lost and the page will reload what is currently live.',ok:'Discard draft'}).then(function(ok){if(ok)idbSet('state',null).catch(function(){}).then(function(){start();toast('Draft discarded')})});return}
  if(e.target.id==='out'){sb.auth.signOut().then(function(){location.reload()});return}
  var b=e.target.closest('[data-a]');if(!b)return;var a=b.dataset.a.split('|'),k=a[0],g=S.gal[S.trip];
  if(k==='trip'){S.trip=a[1];saveUI();render();return}
  if(k==='addtrip'){openTrip();return}
- if(k==='rmtrip'){if(S.trips.length<2){toast('Keep at least one trip');return}var tr0=T().filter(function(x){return x.id===S.trip})[0];if(!confirm('Delete the trip \u201c'+tr0.t+'\u201d with all its places and photos?'))return;
-  S.trips=S.trips.filter(function(x){return x.id!==S.trip});delete S.gal[S.trip];delete S.covers[S.trip];S.trip=S.trips[0].id;save();render();return}
+ if(k==='rmtrip'){if(S.trips.length<2){toast('Keep at least one trip');return}var tr0=T().filter(function(x){return x.id===S.trip})[0],tid0=S.trip,np0=g.places.length,nph0=0;g.places.forEach(function(x){nph0+=x.photos.length});
+  ask({title:'Delete \u201c'+tr0.t+'\u201d?',msg:'This removes the whole trip from the site once you publish.',thumb:srcOf(S.covers[tid0],400),chips:[np0+' place'+(np0===1?'':'s'),nph0+' photo'+(nph0===1?'':'s'),tr0.when||'no date'],warn:'This can\u2019t be undone (unless you discard your draft before publishing).',ok:'Yes, delete trip'}).then(function(ok){if(!ok)return;
+   S.trips=S.trips.filter(function(x){return x.id!==tid0});delete S.gal[tid0];delete S.covers[tid0];S.trip=S.trips[0].id;save();render();toast('\u201c'+tr0.t+'\u201d deleted')});return}
  if(k==='cover'){var ph0=g.places[+a[1]].photos[+a[2]];S.covers[S.trip]={src:ph0.src,blob:ph0.blob};save();softRender();toast('Cover updated');return}
  if(k==='find'){geo(S.trip,+a[1]);return}
  if(k==='mvroll')mv(S.roll,+a[1],+a[2]);
- else if(k==='rmroll'){if(!confirm('Delete this photo from the camera roll?'))return;S.roll.splice(+a[1],1)}
+ else if(k==='rmroll'){var ri=+a[1];ask({title:'Delete this photo?',msg:'It will be removed from the camera on the home page once you publish.',thumb:srcOf(S.roll[ri],400),ok:'Delete photo'}).then(function(ok){if(!ok)return;S.roll.splice(ri,1);save();softRender();toast('Photo deleted')});return}
  else if(k==='mvph')mv(g.places[+a[1]].photos,+a[2],+a[3]);
- else if(k==='rmph'){if(!confirm('Delete this photo?'))return;g.places[+a[1]].photos.splice(+a[2],1)}
+ else if(k==='rmph'){var pi1=+a[1],ph1=+a[2],it1=g.places[pi1].photos[ph1];ask({title:'Delete this photo?',msg:(it1.cap?'\u201c'+it1.cap+'\u201d':'This photo')+' will be removed from the gallery once you publish.',thumb:srcOf(it1,400),ok:'Delete photo'}).then(function(ok){if(!ok)return;g.places[pi1].photos.splice(ph1,1);save();softRender();toast('Photo deleted')});return}
  else if(k==='mvplace')mv(g.places,+a[1],+a[2]);
- else if(k==='rmplace'){var p=g.places[+a[1]];if(!confirm('Delete \u201c'+p.n+'\u201d and its '+p.photos.length+' photo(s)?'))return;g.places.splice(+a[1],1)}
+ else if(k==='rmplace'){var pl1=+a[1],p=g.places[pl1];ask({title:'Delete \u201c'+(p.n||'this place')+'\u201d?',msg:'The place and its map pin will be removed from the site once you publish.',thumb:p.photos[0]?srcOf(p.photos[0],400):null,chips:[p.photos.length+' photo'+(p.photos.length===1?'':'s')],ok:'Delete place'}).then(function(ok){if(!ok)return;g.places.splice(pl1,1);save();softRender();toast('Place deleted')});return}
  else if(k==='addplace'){var last=g.places[g.places.length-1];g.places.push({n:'New place',s:last?last.s:'',photos:[]})}
  save();softRender()});
 ['dragover','dragleave','drop'].forEach(function(ev){document.addEventListener(ev,function(e){var z=e.target.closest&&e.target.closest('[data-dz]');
