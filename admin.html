@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>Admin — Tushar's Travel Journal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Caveat:wght@500;700&family=Gochi+Hand&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f3f1ec;--ink:#111;--card:#fff;--yellow:#ffe24a;--pink:#ff9ec4;--blue:#9ad0ff;--green:#b6f09c;--red:#ff7a7a;--sans:"Space Grotesk",system-ui,sans-serif;--hand:"Caveat",cursive;--pad:clamp(1rem,4vw,3rem)}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);background-image:radial-gradient(rgba(128,128,128,.22) 1px,transparent 1px);background-size:22px 22px;min-height:100vh}
+img{display:block;width:100%;height:100%;object-fit:cover}
+button,input,select{font:inherit;color:inherit}
+.wrap{width:min(100% - var(--pad)*2,1200px);margin-inline:auto}
+.box{border:2px solid var(--ink);background:var(--card);box-shadow:6px 6px 0 var(--ink)}
+header{position:sticky;top:0;z-index:20;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(10px);border-bottom:2px solid var(--ink)}
+.hb{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:.8rem 0;flex-wrap:wrap}
+.logo{font:400 1.3rem/1 "Gochi Hand",cursive;letter-spacing:.04em;text-transform:uppercase;padding:.4rem 1rem;border:2.5px solid var(--ink);border-radius:10px;background:var(--card);box-shadow:4px 4px 0 var(--ink)}
+.tabs{display:flex;gap:.5rem;flex-wrap:wrap}
+.tab{cursor:pointer;padding:.55rem 1.1rem;border:2px solid var(--ink);border-radius:999px;background:var(--card);font-weight:700;font-size:.9rem}
+.tab[aria-selected=true]{background:var(--ink);color:var(--bg)}
+.btn{display:inline-flex;align-items:center;gap:.5rem;cursor:pointer;padding:.55rem 1rem;border:2px solid var(--ink);border-radius:999px;background:var(--card);font-weight:700;font-size:.85rem;box-shadow:3px 3px 0 var(--ink);transition:.15s;white-space:nowrap}
+.btn:hover{transform:translate(-1px,-1px);box-shadow:5px 5px 0 var(--ink)}
+.btn.y{background:var(--yellow)}.btn.g{background:var(--green)}.btn.p{background:var(--pink)}.btn.b{background:var(--blue)}.btn.r{background:var(--red)}
+.btn.sm{padding:.3rem .65rem;font-size:.75rem;box-shadow:2px 2px 0 var(--ink)}
+.btn input{display:none}
+.btn:disabled{opacity:.5;cursor:progress}
+main{padding-block:2rem 6rem}
+h2{margin:0 0 .3rem;font-size:clamp(1.8rem,4vw,2.6rem);letter-spacing:-.03em}
+.sub{margin:0 0 1.6rem;opacity:.75;max-width:46rem;line-height:1.5}
+.sec{padding:1.3rem;margin-bottom:2rem}
+.sec h3{margin:0 0 .3rem;font:700 1.9rem/1 var(--hand)}
+.sec p.h{margin:0 0 1rem;font-size:.9rem;opacity:.7}
+.row{display:flex;gap:.6rem;flex-wrap:wrap;align-items:center}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:1rem}
+.it{border:2px solid var(--ink);background:var(--bg);padding:6px;display:flex;flex-direction:column;gap:.5rem}
+.it .im{aspect-ratio:4/3;overflow:hidden;border:2px solid var(--ink);background:#ddd}
+.it input[type=text]{width:100%;padding:.4rem .5rem;border:2px solid var(--ink);background:var(--card);font-size:.85rem;min-width:0}
+.it .acts{display:flex;gap:.3rem;flex-wrap:wrap}
+.cov .im{aspect-ratio:16/10}
+.dz{border:3px dashed var(--ink);padding:1.2rem;text-align:center;font:700 1.4rem var(--hand);background:color-mix(in srgb,var(--yellow) 35%,var(--card));margin:.8rem 0}
+.dz.over{background:var(--yellow)}
+.dz small{display:block;font:500 .8rem var(--sans);opacity:.7;margin-top:.3rem}
+.place{border-top:2px dashed color-mix(in srgb,var(--ink) 35%,transparent);padding-top:1.2rem;margin-top:1.4rem}
+.ph{display:flex;gap:.6rem;flex-wrap:wrap;align-items:center;margin-bottom:.6rem}
+.ph input[type=number]{width:105px}
+.ph input{padding:.4rem .6rem;border:2px solid var(--ink);background:var(--card);font-weight:700}
+.ph .num{display:grid;place-items:center;width:2.2rem;height:2.2rem;border:2px solid var(--ink);border-radius:50%;font-weight:700;background:var(--yellow)}
+.pills{display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:1.2rem}
+.pill{cursor:pointer;padding:.45rem 1rem;border:2px solid var(--ink);border-radius:999px;background:var(--card);font-weight:700;font-size:.85rem}
+.pill[aria-pressed=true]{background:var(--yellow);box-shadow:3px 3px 0 var(--ink)}
+.steps{line-height:1.7}.steps code{background:var(--yellow);padding:.1rem .4rem;border:1.5px solid var(--ink);border-radius:4px;font-size:.85em}
+.stat{display:flex;gap:.6rem;flex-wrap:wrap;margin:1rem 0}
+.stat span{padding:.35rem .8rem;border:2px solid var(--ink);border-radius:999px;background:var(--green);font-weight:700;font-size:.85rem}
+#toast{position:fixed;left:50%;bottom:1.4rem;transform:translateX(-50%);z-index:60;padding:.7rem 1.2rem;background:var(--ink);color:var(--bg);font-weight:700;border-radius:999px;box-shadow:4px 4px 0 var(--pink);opacity:0;pointer-events:none;transition:.25s;max-width:92vw;text-align:center}
+#toast.on{opacity:1}
+.lock{min-height:100vh;display:grid;place-items:center;padding:1rem}
+.lock form{width:min(100%,380px);padding:1.6rem;display:grid;gap:.9rem}
+.lock h1{margin:0;font:700 2.2rem/1 var(--hand)}
+.lock input{padding:.7rem .9rem;border:2px solid var(--ink);background:var(--card)}
+.lock p{margin:0;font-size:.85rem;opacity:.75;line-height:1.5}
+[hidden]{display:none!important}
+.mo{position:fixed;inset:0;z-index:100;display:grid;place-items:center;padding:1rem;background:rgba(12,9,7,.7);backdrop-filter:blur(5px);overflow:auto}
+.mf{position:relative;width:min(100%,640px);max-height:calc(100vh - 2rem);overflow:auto;padding:1.6rem;transform:rotate(-.4deg)}
+.mf .tape{position:absolute;top:-14px;left:50%;margin-left:-60px;width:120px;height:26px;background:rgba(255,226,74,.85);border:2px solid var(--ink);transform:rotate(-2deg)}
+.mf h2{font:700 2.3rem/1 var(--hand);margin:.4rem 0 .2rem;letter-spacing:0}
+.mf .lead{margin:0 0 1.2rem;font-size:.9rem;opacity:.7}
+.fx{display:grid;gap:1rem}
+.fr{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+.fl{display:grid;gap:.35rem;font-weight:700;font-size:.8rem;letter-spacing:.06em;text-transform:uppercase}
+.fl input,.fl select{padding:.65rem .8rem;border:2px solid var(--ink);background:var(--card);font-weight:500;font-size:1rem;text-transform:none;letter-spacing:0;min-width:0;width:100%}
+.fl input:focus,.fl select:focus{outline:3px solid var(--blue);outline-offset:1px}
+.fl em{font-style:normal;font-weight:500;opacity:.6;text-transform:none;letter-spacing:0;font-size:.78rem}
+.cvz{position:relative;border:3px dashed var(--ink);background:color-mix(in srgb,var(--yellow) 30%,var(--card));aspect-ratio:16/8;display:grid;place-items:center;text-align:center;cursor:pointer;overflow:hidden;font:700 1.5rem var(--hand);text-transform:none;letter-spacing:0}
+.cvz.over{background:var(--yellow)}
+.cvz small{display:block;font:500 .8rem var(--sans);opacity:.7}
+.cvz img{position:absolute;inset:0}
+.cvz .chg{position:absolute;right:.6rem;bottom:.6rem;padding:.3rem .7rem;border:2px solid var(--ink);border-radius:999px;background:var(--yellow);font:700 .75rem var(--sans)}
+.cvz input{display:none}
+.sw{display:flex;gap:.6rem;flex-wrap:wrap}
+.sw label{cursor:pointer}.sw input{display:none}
+.sw span{display:block;width:44px;height:44px;border:2.5px solid var(--ink);border-radius:50%;background:var(--c);transition:.15s}
+.sw input:checked+span{box-shadow:0 0 0 3px var(--bg),0 0 0 6px var(--ink);transform:scale(1.08)}
+.fa{display:flex;gap:.7rem;justify-content:flex-end;margin-top:1.4rem;flex-wrap:wrap}
+.fe{color:#b00;font-size:.85rem;margin:0;min-height:1.2em}
+.prev{display:flex;align-items:center;gap:.8rem;padding:.7rem;border:2px dashed var(--ink);font-size:.85rem}
+.prev b{padding:.3rem .9rem;border:2px solid var(--ink);border-radius:999px;background:var(--c);font-size:.85rem}
+@media(max-width:520px){.fr{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="lock" id="lock" hidden>
+ <form class="box" id="lf"><h1 id="lt">Admin login</h1><p id="lp">Sign in with the admin account you created in Supabase.</p><input type="email" id="lem" placeholder="Email" autocomplete="username" required><input type="password" id="lpw" placeholder="Password" autocomplete="current-password" required><button class="btn y" type="submit" id="lb">Sign in</button><p id="lm" style="color:#b00"></p></form>
+</div>
+
+<div id="app" hidden>
+<header><div class="wrap hb"><span class="logo">Admin ✺</span>
+ <div class="tabs" role="tablist"><button class="tab" data-t="home" role="tab">Home page</button><button class="tab" data-t="gallery" role="tab">Gallery</button><button class="tab" data-t="export" role="tab">Publish</button></div>
+ <span class="pill" id="dirty" hidden style="background:var(--pink);font-size:.75rem">Unpublished changes</span><button class="btn sm y" id="pubq" type="button">Publish \u2191</button><button class="btn sm" id="out" type="button">Log out</button></div></header>
+<main class="wrap" id="view"></main>
+</div>
+<div class="mo" id="mo" hidden><form class="mf box" id="tf" novalidate><span class="tape"></span>
+ <h2>New trip</h2><p class="lead">Fill in the basics \u2014 you can add all the photos afterwards.</p>
+ <div class="fx">
+  <label class="fl">Trip name<input id="tfn" type="text" maxlength="40" placeholder="e.g. Spiti Valley" autocomplete="off" required></label>
+  <div class="fr"><label class="fl">Month<select id="tfm"></select></label><label class="fl">Year<input id="tfy" type="number" min="1990" max="2100"></label></div>
+  <div class="fr"><label class="fl">First place<em>Where did it start?</em><input id="tfp" type="text" maxlength="40" placeholder="e.g. Kaza"></label><label class="fl">State / country<input id="tfs" type="text" maxlength="40" placeholder="e.g. Himachal Pradesh"></label></div>
+  <div class="fl">Cover photo<label class="cvz" id="tfz"><span id="tfzt">drop a photo here<small>or click to browse \u2014 you can change it later</small></span><input id="tff" type="file" accept="image/*"></label></div>
+  <div class="fl">Card colour<div class="sw" id="tfc"><label><input type="radio" name="tc" value="--yellow" checked><span style="--c:var(--yellow)"></span></label><label><input type="radio" name="tc" value="--pink"><span style="--c:var(--pink)"></span></label><label><input type="radio" name="tc" value="--blue"><span style="--c:var(--blue)"></span></label><label><input type="radio" name="tc" value="--green"><span style="--c:var(--green)"></span></label></div></div>
+  <div class="prev" id="tfv" style="--c:var(--yellow)"><b id="tfvb">New trip</b><span>This is how the trip appears in the gallery tabs.</span></div>
+  <p class="fe" id="tfe" role="alert"></p>
+ </div>
+ <div class="fa"><button class="btn" type="button" id="tfx">Cancel</button><button class="btn y" type="submit" id="tfok">Create trip \u2192</button></div></form></div>
+<div id="toast" role="status" aria-live="polite"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-config.js"></script>
+<script>
+(function(){
+var $=function(i){return document.getElementById(i)};
+var UN='https://images.unsplash.com/';
+var esc=function(x){return String(x==null?'':x).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;')};
+var slug=function(x){return String(x).toLowerCase().replace(/&/g,'and').replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'')||'x'};
+var tt;function toast(m){var t=$('toast');t.textContent=m;t.classList.add('on');clearTimeout(tt);tt=setTimeout(function(){t.classList.remove('on')},3200)}
+
+/* ---------- Defaults (match the current index.html / gallery.html) ---------- */
+var TRIPS=[
+ {id:'harishchandragad',t:'Harishchandragad',when:'Oct 2025',img:UN+'photo-1464278533981-50106e6176b1?auto=format&fit=crop&w=1100&q=80'},
+ {id:'chiplun-goa',t:'Chiplun to Goa',when:'Jun 2025',img:UN+'photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1100&q=80'},
+ {id:'ganpatipule',t:'Ganpatipule',when:'Feb 2025',img:UN+'photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1100&q=80'},
+ {id:'rishikesh-chopta',t:'Rishikesh & Chopta',when:'Dec 2024',img:UN+'photo-1519681393784-d120267933ba?auto=format&fit=crop&w=1100&q=80'}];
+var GAL0={
+ 'harishchandragad':{places:[['Pachnai village','Maharashtra'],['Kokankada cliff','Maharashtra'],['Taramati peak','Maharashtra'],['Harishchandreshwar temple','Maharashtra']],photos:[[0,'photo-1464278533981-50106e6176b1','Where the climb begins'],[0,'photo-1441974231531-c6227db76b6e','Forest trail at the base'],[1,'photo-1464822759023-fed622ff2c3b','Standing at the edge'],[1,'photo-1506905925346-21bda4d32df4','Clouds below my feet'],[2,'photo-1551632811-561732d1e306','Almost at the top'],[2,'photo-1501555088652-021faa106b9b','Golden hour on the ridge'],[3,'photo-1469474968028-56623f02e42e','Quiet temple morning'],[3,'photo-1470770841072-f978cf4d019e','Cold water, warm sun']]},
+ 'chiplun-goa':{places:[['Chiplun','Maharashtra'],['Ganpatipule','Maharashtra'],['Tarkarli','Maharashtra'],['Palolem','Goa']],photos:[[0,'photo-1500530855697-b586d89ba3ee','First fuel stop'],[0,'photo-1441974231531-c6227db76b6e','Green tunnel of trees'],[1,'photo-1507525428034-b723cf961d3e','Beach break'],[2,'photo-1518837695005-2083093ee35b','Clear water, empty sand'],[2,'photo-1432405972618-c60b0225b8f9','Waves on the rocks'],[3,'photo-1500534623283-312aade485b7','Last stretch of road'],[3,'photo-1472396961693-142e6e269027','Made it to Goa']]},
+ 'ganpatipule':{places:[['Ganpatipule','Maharashtra'],['Kasheli Beach','Maharashtra'],['Guhagar','Maharashtra'],['Jaigad Fort','Maharashtra']],photos:[[0,'photo-1507525428034-b723cf961d3e','Morning at the shore'],[0,'photo-1518837695005-2083093ee35b','The coastline'],[1,'photo-1432405972618-c60b0225b8f9','Kasheli, all to ourselves'],[1,'photo-1500534623283-312aade485b7','Sunset walk'],[2,'photo-1470770841072-f978cf4d019e','Guhagar blue hour'],[2,'photo-1472396961693-142e6e269027','Palms and quiet roads'],[3,'photo-1469474968028-56623f02e42e','Fort walls at golden hour'],[3,'photo-1501555088652-021faa106b9b','View from the ramparts']]},
+ 'rishikesh-chopta':{places:[['Rishikesh','Uttarakhand'],['Devprayag','Uttarakhand'],['Chopta','Uttarakhand'],['Tungnath','Uttarakhand']],photos:[[0,'photo-1470770841072-f978cf4d019e','The river\u2019s rhythm'],[0,'photo-1500534623283-312aade485b7','Ganga morning'],[1,'photo-1432405972618-c60b0225b8f9','Where two rivers meet'],[2,'photo-1519681393784-d120267933ba','Snowy mountain at night'],[2,'photo-1441974231531-c6227db76b6e','Pine forest stillness'],[3,'photo-1464822759023-fed622ff2c3b','The high mountains'],[3,'photo-1506905925346-21bda4d32df4','Peak vision, finally'],[3,'photo-1551632811-561732d1e306','Too tired to stand']]}};
+var GC={'harishchandragad|Pachnai village':[19.375,73.755],'harishchandragad|Kokankada cliff':[19.389,73.769],'harishchandragad|Taramati peak':[19.386,73.7795],'harishchandragad|Harishchandreshwar temple':[19.388,73.7765],
+ 'chiplun-goa|Chiplun':[17.5333,73.5167],'chiplun-goa|Ganpatipule':[17.1456,73.268],'chiplun-goa|Tarkarli':[16.027,73.468],'chiplun-goa|Palolem':[15.01,74.0232],
+ 'ganpatipule|Ganpatipule':[17.1456,73.268],'ganpatipule|Kasheli Beach':[16.99,73.31],'ganpatipule|Guhagar':[17.4833,73.1933],'ganpatipule|Jaigad Fort':[17.2945,73.2147],
+ 'rishikesh-chopta|Rishikesh':[30.0869,78.2676],'rishikesh-chopta|Devprayag':[30.146,78.599],'rishikesh-chopta|Chopta':[30.388,79.098],'rishikesh-chopta|Tungnath':[30.4896,79.2186]};
+function defaults(){
+ var S={hero:{src:'photo-1501555088652-021faa106b9b'},covers:{},
+  pinned:[['photo-1551632811-561732d1e306','Just meeee and the mountainsss!!!'],['photo-1501555088652-021faa106b9b','Golden hour crewwww'],['photo-1464822759023-fed622ff2c3b','Too tired to standd.'],['photo-1506905925346-21bda4d32df4','Peak visionsss onlyyy']].map(function(p){return{src:p[0],cap:p[1]}}),
+  roll:[['photo-1500534623283-312aade485b7','Open horizons'],['photo-1441974231531-c6227db76b6e','Forest light'],['photo-1432405972618-c60b0225b8f9','Water in motion'],['photo-1518837695005-2083093ee35b','The coastline'],['photo-1472396961693-142e6e269027','Quiet encounters'],['photo-1470770841072-f978cf4d019e','Mountain lake'],['photo-1469474968028-56623f02e42e','Golden valley'],['photo-1506905925346-21bda4d32df4','High peaks']].map(function(p){return{src:p[0],cap:p[1]}}),
+  gal:{},trips:TRIPS.map(function(t){return{id:t.id,t:t.t,when:t.when}}),tab:'home',trip:TRIPS[0].id};
+ TRIPS.forEach(function(t){S.covers[t.id]={src:t.img};var g=GAL0[t.id];
+  S.gal[t.id]={places:g.places.map(function(p){var c=GC[t.id+'|'+p[0]]||[null,null];return{n:p[0],s:p[1],lat:c[0],lng:c[1],photos:[]}})};
+  g.photos.forEach(function(p){S.gal[t.id].places[p[0]].photos.push({src:p[1],cap:p[2]})})});
+ return S}
+
+/* ---------- Storage (IndexedDB keeps the uploaded image files) ---------- */
+var DB=null;
+function idb(){return new Promise(function(res,rej){var r=indexedDB.open('travel-admin',1);r.onupgradeneeded=function(){r.result.createObjectStore('kv')};r.onsuccess=function(){res(r.result)};r.onerror=function(){rej(r.error)}})}
+function idbGet(k){return idb().then(function(d){return new Promise(function(res,rej){var q=d.transaction('kv').objectStore('kv').get(k);q.onsuccess=function(){res(q.result)};q.onerror=function(){rej(q.error)}})})}
+function idbSet(k,v){return idb().then(function(d){return new Promise(function(res,rej){var t=d.transaction('kv','readwrite');t.objectStore('kv').put(v,k);t.oncomplete=res;t.onerror=function(){rej(t.error)}})})}
+var S=null,st=null;
+function T(){return S.trips}
+function persist(){clearTimeout(st);st=setTimeout(function(){idbSet('state',S).catch(function(){})},300)}
+function save(){S.dirty=true;updDirty();persist()}
+function saveUI(){persist()}
+function updDirty(){var d=!!(S&&S.dirty);$('dirty').hidden=!d;$('pubq').style.opacity=d?1:.55}
+
+/* ---------- Images ---------- */
+var urls=new WeakMap();
+function srcOf(it,w){if(!it)return'';if(it.blob){var u=urls.get(it.blob);if(!u){u=URL.createObjectURL(it.blob);urls.set(it.blob,u)}return u}
+ if(/^photo-/.test(it.src))return UN+it.src+'?auto=format&fit=crop&w='+(w||500)+'&q=70';return it.src}
+function proc(file,max){return createImageBitmap(file).then(function(bm){var s=Math.min(1,max/Math.max(bm.width,bm.height)),c=document.createElement('canvas');c.width=Math.max(1,Math.round(bm.width*s));c.height=Math.max(1,Math.round(bm.height*s));
+ var x=c.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,c.width,c.height);x.drawImage(bm,0,0,c.width,c.height);return new Promise(function(r){c.toBlob(r,'image/jpeg',.86)})})}
+function newItem(folder,file,max){return proc(file,max).then(function(b){var base=slug(file.name.replace(/\.[^.]+$/,'')).slice(0,40),path=folder+'/'+base+'-'+Date.now().toString(36)+Math.random().toString(36).slice(2,5)+'.jpg';
+ return sb.storage.from(BUCKET).upload(path,b,{contentType:'image/jpeg',cacheControl:'31536000'}).then(function(r){if(r.error)throw r.error;return{src:sb.storage.from(BUCKET).getPublicUrl(path).data.publicUrl,cap:''}})})}
+function addFiles(files,folder,max){var list=[].filter.call(files,function(f){return /^image\//.test(f.type)||/\.(jpe?g|png|webp|gif|avif|heic)$/i.test(f.name)});
+ if(!list.length){toast('No image files selected');return Promise.resolve([])}
+ toast('Processing '+list.length+' photo'+(list.length>1?'s':'')+'\u2026');var out=[],bad=0;
+ return list.reduce(function(p,f){return p.then(function(){return newItem(folder,f,max).then(function(it){it.cap=f.name.replace(/\.[^.]+$/,'').replace(/[-_]+/g,' ');out.push(it)}).catch(function(){bad++})})},Promise.resolve())
+  .then(function(){if(bad)toast(bad+' file(s) failed to upload (HEIC isn\u2019t supported by every browser; also check you are signed in)');return out})}
+
+/* ---------- Views ---------- */
+var view=$('view');
+function tile(it,o){return'<div class="it'+(o.cov?' cov':'')+'"><div class="im"><img src="'+esc(srcOf(it))+'" alt="" loading="lazy"></div>'+(o.cap!=null?'<input type="text" data-cap="'+o.cap+'" value="'+esc(it.cap)+'" placeholder="Caption" aria-label="Caption">':'')+'<div class="acts">'+(o.acts||'')+'</div></div>'}
+function up(attr,label,multi){return'<label class="btn sm y">'+label+'<input type="file" accept="image/*" '+(multi?'multiple ':'')+'data-up="'+attr+'"></label>'}
+function homeV(){
+ var h='<h2>Home page photos</h2><p class="sub">Everything on <b>index.html</b> that uses a picture. Photos are resized in your browser (max 1800px) before they\u2019re saved.</p>';
+ h+='<section class="box sec"><h3>Hero portrait</h3><p class="h">The photo next to \u201cI\u2019m Tushar\u201d.</p><div class="grid" style="grid-template-columns:minmax(180px,260px)">'+tile(S.hero,{cov:1,acts:up('hero','Replace photo')})+'</div></section>';
+ h+='<section class="box sec"><h3>Journey covers</h3><p class="h">Used in Selected journeys, the guide books, the map log and the gallery trip cards.</p><div class="grid">'+T().map(function(t){return'<div><b style="font-size:.9rem">'+esc(t.t)+'</b>'+tile(S.covers[t.id],{cov:1,acts:up('cover|'+t.id,'Replace photo')})+'</div>'}).join('')+'</div></section>';
+ h+='<section class="box sec"><h3>Pinned memories</h3><p class="h">The 4 polaroids hanging on the pegboard.</p><div class="grid">'+S.pinned.map(function(p,i){return tile(p,{cap:'pin|'+i,acts:up('pin|'+i,'Replace')})}).join('')+'</div></section>';
+ h+='<section class="box sec"><h3>Camera roll <span style="font:500 .9rem var(--sans)">('+S.roll.length+' photos)</span></h3><p class="h">The photos you flip through on the camera. Drop several at once.</p><div class="dz" data-dz="roll">drop photos here<small>or use the button below</small></div><div class="row" style="margin-bottom:1rem">'+up('roll','+ Add photos',1)+'</div><div class="grid">'+S.roll.map(function(p,i){return tile(p,{cap:'roll|'+i,acts:'<button class="btn sm" data-a="mvroll|'+i+'|-1" type="button" aria-label="Move earlier">\u25c0</button><button class="btn sm" data-a="mvroll|'+i+'|1" type="button" aria-label="Move later">\u25b6</button><button class="btn sm r" data-a="rmroll|'+i+'" type="button">Delete</button>'})}).join('')+'</div></section>';
+ view.innerHTML=h}
+function galV(){
+ var tr=T().filter(function(t){return t.id===S.trip})[0],g=S.gal[S.trip],tot=0;g.places.forEach(function(p){tot+=p.photos.length});
+ var h='<h2>Gallery photos</h2><p class="sub">Pick a trip, then add photos under each place. Each photo\u2019s caption shows on hover and in the viewer.</p><div class="pills">'+T().map(function(t){return'<button class="pill" type="button" data-a="trip|'+t.id+'" aria-pressed="'+(t.id===S.trip)+'">'+esc(t.t)+'</button>'}).join('')+'<button class="pill" type="button" data-a="addtrip" style="background:var(--green)">+ Add trip</button></div>';
+ h+='<section class="box sec"><h3>'+esc(tr.t)+' <span style="font:500 .9rem var(--sans)">\u00b7 '+g.places.length+' places \u00b7 '+tot+' photos</span></h3><p class="h">Place order here is the route order on the site.</p>'+
+ '<div class="ph"><input type="text" data-tn="1" value="'+esc(tr.t)+'" aria-label="Trip name" placeholder="Trip name"><input type="text" data-tw="1" value="'+esc(tr.when)+'" aria-label="When" placeholder="e.g. Mar 2026"><button class="btn sm r" type="button" data-a="rmtrip">Delete trip</button></div>'+
+ '<div class="row" style="margin:1rem 0;align-items:flex-start;gap:1rem"><div style="width:200px"><div class="it cov"><div class="im"><img src="'+esc(srcOf(S.covers[S.trip],700))+'" alt="" loading="lazy"></div></div></div><div><b>Trip cover</b><p class="h" style="margin:.3rem 0 .7rem;max-width:30rem">Shown on this trip\u2019s card at the top of the gallery and on the home page. Click <b>\u2605 Cover</b> on any photo below to use it, or upload a different image.</p>'+up('cover|'+S.trip,'Upload new cover')+'</div></div>'+
+ '<button class="btn sm g" type="button" data-a="addplace">+ Add place</button>';
+ g.places.forEach(function(p,pi){
+  h+='<div class="place"><div class="ph"><span class="num">'+(pi+1)+'</span><input type="text" data-pn="'+pi+'" value="'+esc(p.n)+'" aria-label="Place name" placeholder="Place name"><input type="text" data-ps="'+pi+'" value="'+esc(p.s)+'" aria-label="State" placeholder="State"><input type="number" step="any" data-plat="'+pi+'" value="'+(p.lat==null?'':p.lat)+'" aria-label="Latitude" placeholder="Lat"><input type="number" step="any" data-plng="'+pi+'" value="'+(p.lng==null?'':p.lng)+'" aria-label="Longitude" placeholder="Lng"><button class="btn sm b" data-a="find|'+pi+'" type="button">\ud83d\udccd Find on map</button><span style="font-size:.75rem;font-weight:700;color:'+(p.lat==null||p.lng==null?'#b00':'#2a7a2a')+'">'+(p.lat==null||p.lng==null?'no map pin yet':'on map \u2713')+'</span><button class="btn sm" data-a="mvplace|'+pi+'|-1" type="button">\u25b2</button><button class="btn sm" data-a="mvplace|'+pi+'|1" type="button">\u25bc</button><button class="btn sm r" data-a="rmplace|'+pi+'" type="button">Delete place</button></div>'+
+  '<div class="dz" data-dz="gal|'+pi+'">drop photos for '+esc(p.n||'this place')+'<small>'+p.photos.length+' photo'+(p.photos.length===1?'':'s')+' so far</small></div><div class="row" style="margin-bottom:1rem">'+up('gal|'+pi,'+ Add photos',1)+'</div>'+
+  '<div class="grid">'+p.photos.map(function(ph,i){return tile(ph,{cap:'ph|'+pi+'|'+i,acts:'<button class="btn sm'+(S.covers[S.trip]&&S.covers[S.trip].src===ph.src?' y':'')+'" data-a="cover|'+pi+'|'+i+'" type="button">\u2605 Cover</button><button class="btn sm" data-a="mvph|'+pi+'|'+i+'|-1" type="button" aria-label="Move earlier">\u25c0</button><button class="btn sm" data-a="mvph|'+pi+'|'+i+'|1" type="button" aria-label="Move later">\u25b6</button><button class="btn sm r" data-a="rmph|'+pi+'|'+i+'" type="button">Delete</button>'})}).join('')+'</div></div>'});
+ h+='</section>';view.innerHTML=h}
+function counts(){var n=0,b=0;function c(it){n++;if(/\/storage\/v1\//.test(it.src))b++}
+ c(S.hero);S.pinned.forEach(c);S.roll.forEach(c);T().forEach(function(t){c(S.covers[t.id]);S.gal[t.id].places.forEach(function(p){p.photos.forEach(c)})});return{n:n,b:b}}
+function exportV(){var c=counts();
+ view.innerHTML='<h2>Publish</h2><p class="sub">Your edits are a draft until you publish. Publishing writes them to Supabase, and index.html and gallery.html show them straight away \u2014 no files to upload.</p>'+
+ '<section class="box sec"><h3>Publish to the live site</h3><div class="stat"><span>'+c.n+' photos in total</span><span>'+c.b+' uploaded to Supabase</span><span style="background:'+(S.dirty?'var(--pink)':'var(--green)')+'">'+(S.dirty?'Unpublished changes':'Everything is live')+'</span></div><button class="btn y" id="exp" type="button">Publish changes \u2191</button></section>'+
+ '<section class="box sec"><h3>Draft</h3><p class="h">Unpublished edits are kept in this browser. Reloading discards them and shows what is currently live.</p><div class="row"><button class="btn r" id="rst" type="button">Discard draft &amp; reload live data</button></div></section>'+
+ '<section class="box sec"><h3>Good to know</h3><p class="h" style="margin:0;line-height:1.6">Photos upload to your Supabase storage the moment you pick them, but they only appear on the site after you publish. Photos you delete stay in storage (harmless; you can clear them in the Supabase dashboard). Login is handled by Supabase Auth, so the admin can only save when you are signed in.</p></section>'}
+function render(){[].forEach.call(document.querySelectorAll('.tab'),function(b){b.setAttribute('aria-selected',b.dataset.t===S.tab)});
+ (S.tab==='home'?homeV:S.tab==='gallery'?galV:exportV)();window.scrollTo(0,0)}
+function softRender(){var y=scrollY;(S.tab==='home'?homeV:S.tab==='gallery'?galV:exportV)();scrollTo(0,y)}
+
+/* ---------- Export ---------- */
+function buildData(){var d={hero:S.hero.src,pinned:S.pinned.map(function(p){return{src:p.src,cap:p.cap}}),roll:S.roll.map(function(p){return{src:p.src,cap:p.cap}}),covers:{},gal:{},trips:S.trips.map(function(t){return{id:t.id,t:t.t,when:t.when,c:t.c||null}})};
+ T().forEach(function(t){d.covers[t.id]=S.covers[t.id].src;var pl=S.gal[t.id].places,ph=[];
+  pl.forEach(function(p,pi){p.photos.forEach(function(x){ph.push([pi,x.src,x.cap])})});
+  d.gal[t.id]={places:pl.map(function(p){return{n:p.n,s:p.s,lat:p.lat==null?null:p.lat,lng:p.lng==null?null:p.lng}}),photos:ph}});return d}
+function publish(btn){if(btn)btn.disabled=true;toast('Publishing\u2026');
+ sb.from('site_data').upsert({id:1,data:buildData(),updated_at:new Date().toISOString()}).then(function(r){if(r.error)throw r.error;S.dirty=false;idbSet('state',S).catch(function(){});updDirty();if(S.tab==='export')softRender();toast('Published \u2014 your site is updated')})
+  .catch(function(e){toast('Publish failed: '+(e&&e.message||e))}).then(function(){if(btn)btn.disabled=false})}
+function fromData(d){var D=defaults(),S2={hero:{src:d.hero||D.hero.src},covers:{},pinned:[],roll:(d.roll||[]).map(function(p){return{src:p.src,cap:p.cap||''}}),gal:{},trips:d.trips&&d.trips.length?d.trips:D.trips,tab:'home',dirty:false};
+ for(var i=0;i<4;i++){var p=(d.pinned||[])[i]||D.pinned[i];S2.pinned.push({src:p.src,cap:p.cap||''})}
+ S2.trips.forEach(function(t){S2.covers[t.id]={src:(d.covers&&d.covers[t.id])||D.covers[t.id]&&D.covers[t.id].src||'photo-1464278533981-50106e6176b1'};
+  var g=d.gal&&d.gal[t.id]||{places:[{n:'New place',s:''}],photos:[]};S2.gal[t.id]={places:g.places.map(function(p){var c=GC[t.id+'|'+p.n]||[null,null];return{n:p.n,s:p.s,lat:p.lat!=null?p.lat:c[0],lng:p.lng!=null?p.lng:c[1],photos:[]}})};
+  (g.photos||[]).forEach(function(x){var pl=S2.gal[t.id].places[x[0]];if(pl)pl.photos.push({src:x[1],cap:x[2]||''})})});
+ S2.trip=S2.trips[0].id;return S2}
+
+/* ---------- Find a place's coordinates (OpenStreetMap Nominatim) ---------- */
+function geo(tid,pi,quiet){var p=S.gal[tid]&&S.gal[tid].places[pi];if(!p||!p.n.trim())return;
+ if(!quiet)toast('Searching the map\u2026');
+ return fetch('https://nominatim.openstreetmap.org/search?format=json&limit=1&q='+encodeURIComponent(p.n+(p.s?', '+p.s:'')+', India')).then(function(r){return r.json()}).then(function(rs){
+  if(!rs.length){if(!quiet)toast('Couldn\u2019t find \u201c'+p.n+'\u201d \u2014 type the latitude and longitude yourself');return}
+  p.lat=Math.round(parseFloat(rs[0].lat)*1e6)/1e6;p.lng=Math.round(parseFloat(rs[0].lon)*1e6)/1e6;save();if(S.tab==='gallery'&&S.trip===tid)softRender();if(!quiet)toast('Pinned \u201c'+p.n+'\u201d \u2014 check it looks right')})
+  .catch(function(){if(!quiet)toast('Map search failed \u2014 enter latitude and longitude manually')})}
+
+/* ---------- New trip form ---------- */
+var MN=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],pend=null;
+$('tfm').innerHTML=MN.map(function(m,i){return'<option value="'+m+'">'+['January','February','March','April','May','June','July','August','September','October','November','December'][i]+'</option>'}).join('');
+function tfPrev(){var n=$('tfn').value.trim()||'New trip',c=(document.querySelector('input[name=tc]:checked')||{}).value||'--yellow';$('tfvb').textContent=n;$('tfv').style.setProperty('--c','var('+c+')')}
+function tfCover(files){if(!files||!files[0])return;$('tfe').textContent='';addFiles([files[0]],'covers',1800).then(function(r){if(!r[0])return;pend=r[0];
+ $('tfz').innerHTML='<img src="'+srcOf(pend)+'" alt=""><span class="chg">Change photo</span><input id="tff" type="file" accept="image/*">';$('tff').onchange=function(){tfCover(this.files)}})}
+function openTrip(){pend=null;$('tf').reset();$('tfm').value=MN[new Date().getMonth()];$('tfy').value=new Date().getFullYear();$('tfe').textContent='';
+ $('tfz').innerHTML='<span id="tfzt">drop a photo here<small>or click to browse \u2014 you can change it later</small></span><input id="tff" type="file" accept="image/*">';$('tff').onchange=function(){tfCover(this.files)};
+ tfPrev();$('mo').hidden=false;setTimeout(function(){$('tfn').focus()},30)}
+function closeTrip(){$('mo').hidden=true}
+$('tfn').oninput=tfPrev;$('tfc').onchange=tfPrev;$('tfx').onclick=closeTrip;
+$('mo').addEventListener('mousedown',function(e){if(e.target===$('mo'))closeTrip()});
+addEventListener('keydown',function(e){if(e.key==='Escape'&&!$('mo').hidden)closeTrip()});
+['dragover','dragleave','drop'].forEach(function(ev){$('tfz').addEventListener(ev,function(e){e.preventDefault();e.stopPropagation();if(ev==='dragover')this.classList.add('over');else{this.classList.remove('over');if(ev==='drop')tfCover(e.dataTransfer.files)}})});
+$('tf').onsubmit=function(e){e.preventDefault();var nm=$('tfn').value.trim();
+ if(!nm){$('tfe').textContent='Please give the trip a name.';$('tfn').focus();return}
+ var yr=parseInt($('tfy').value,10);if(!yr||yr<1990||yr>2100){$('tfe').textContent='Enter a valid year.';$('tfy').focus();return}
+ var id=slug(nm),n=2,base=id;while(S.gal[id]){id=base+'-'+n++}
+ var col=document.querySelector('input[name=tc]:checked').value,pl=$('tfp').value.trim(),stt=$('tfs').value.trim();
+ S.trips.unshift({id:id,t:nm,when:$('tfm').value+' '+yr,c:col});
+ S.gal[id]={places:[{n:pl||'New place',s:stt,photos:[]}]};
+ S.covers[id]=pend?{src:pend.src,blob:pend.blob}:{src:'photo-1464278533981-50106e6176b1'};
+ S.trip=id;S.tab='gallery';save();closeTrip();render();if(pl)geo(id,0,true);toast('Trip created \u2014 now add photos to '+(pl||'your first place'))};
+
+/* ---------- Events ---------- */
+function setUp(kind,files,done){
+ var a=kind.split('|'),k=a[0];
+ if(k==='hero'||k==='cover'||k==='pin'){addFiles([files[0]],k==='hero'?'home':k==='cover'?'covers':'pinned',1800).then(function(r){if(!r[0])return;var it=r[0];
+  if(k==='hero')S.hero={src:it.src,blob:it.blob};else if(k==='cover')S.covers[a[1]]={src:it.src,blob:it.blob};else{S.pinned[+a[1]].src=it.src;S.pinned[+a[1]].blob=it.blob}
+  save();softRender();toast('Photo updated')})}
+ else if(k==='roll'){addFiles(files,'camera-roll',1800).then(function(r){r.forEach(function(it){S.roll.push(it)});if(r.length){save();softRender();toast('Added '+r.length+' photo'+(r.length>1?'s':''))}})}
+ else if(k==='gal'){var pi=+a[1],tid=S.trip;addFiles(files,'gallery/'+tid,2000).then(function(r){var p=S.gal[tid].places[pi];if(!p)return;r.forEach(function(it){p.photos.push(it)});if(r.length){save();softRender();toast('Added '+r.length+' photo'+(r.length>1?'s':'')+' to '+p.n)}})}
+}
+document.addEventListener('change',function(e){var f=e.target;if(f.dataset&&f.dataset.up&&f.files&&f.files.length){setUp(f.dataset.up,f.files);f.value=''}});
+document.addEventListener('input',function(e){var t=e.target,d=t.dataset||{};if(!S)return;
+ if(d.cap){var a=d.cap.split('|'),k=a[0];if(k==='pin')S.pinned[+a[1]].cap=t.value;else if(k==='roll')S.roll[+a[1]].cap=t.value;else if(k==='ph')S.gal[S.trip].places[+a[1]].photos[+a[2]].cap=t.value;save()}
+ else if(d.tn!=null){T().filter(function(x){return x.id===S.trip})[0].t=t.value;save()}else if(d.tw!=null){T().filter(function(x){return x.id===S.trip})[0].when=t.value;save()}
+ else if(d.pn!=null){S.gal[S.trip].places[+d.pn].n=t.value;save()}else if(d.ps!=null){S.gal[S.trip].places[+d.ps].s=t.value;save()}
+ else if(d.plat!=null||d.plng!=null){var pp=S.gal[S.trip].places[+(d.plat!=null?d.plat:d.plng)],v=parseFloat(t.value);if(d.plat!=null)pp.lat=isNaN(v)?null:v;else pp.lng=isNaN(v)?null:v;save()}});
+function mv(arr,i,d){var j=i+d;if(j<0||j>=arr.length)return;var x=arr.splice(i,1)[0];arr.splice(j,0,x)}
+document.addEventListener('click',function(e){
+ var tb=e.target.closest('.tab');if(tb){S.tab=tb.dataset.t;saveUI();render();return}
+ if(e.target.closest('#exp,#pubq')){publish(e.target.closest('#exp,#pubq'));return}
+ if(e.target.id==='rst'){if(confirm('Discard your unpublished changes and reload what is live?')){idbSet('state',null).catch(function(){}).then(function(){start()})}return}
+ if(e.target.id==='out'){sb.auth.signOut().then(function(){location.reload()});return}
+ var b=e.target.closest('[data-a]');if(!b)return;var a=b.dataset.a.split('|'),k=a[0],g=S.gal[S.trip];
+ if(k==='trip'){S.trip=a[1];saveUI();render();return}
+ if(k==='addtrip'){openTrip();return}
+ if(k==='rmtrip'){if(S.trips.length<2){toast('Keep at least one trip');return}var tr0=T().filter(function(x){return x.id===S.trip})[0];if(!confirm('Delete the trip \u201c'+tr0.t+'\u201d with all its places and photos?'))return;
+  S.trips=S.trips.filter(function(x){return x.id!==S.trip});delete S.gal[S.trip];delete S.covers[S.trip];S.trip=S.trips[0].id;save();render();return}
+ if(k==='cover'){var ph0=g.places[+a[1]].photos[+a[2]];S.covers[S.trip]={src:ph0.src,blob:ph0.blob};save();softRender();toast('Cover updated');return}
+ if(k==='find'){geo(S.trip,+a[1]);return}
+ if(k==='mvroll')mv(S.roll,+a[1],+a[2]);
+ else if(k==='rmroll'){if(!confirm('Delete this photo from the camera roll?'))return;S.roll.splice(+a[1],1)}
+ else if(k==='mvph')mv(g.places[+a[1]].photos,+a[2],+a[3]);
+ else if(k==='rmph'){if(!confirm('Delete this photo?'))return;g.places[+a[1]].photos.splice(+a[2],1)}
+ else if(k==='mvplace')mv(g.places,+a[1],+a[2]);
+ else if(k==='rmplace'){var p=g.places[+a[1]];if(!confirm('Delete \u201c'+p.n+'\u201d and its '+p.photos.length+' photo(s)?'))return;g.places.splice(+a[1],1)}
+ else if(k==='addplace'){var last=g.places[g.places.length-1];g.places.push({n:'New place',s:last?last.s:'',photos:[]})}
+ save();softRender()});
+['dragover','dragleave','drop'].forEach(function(ev){document.addEventListener(ev,function(e){var z=e.target.closest&&e.target.closest('[data-dz]');
+ if(!z){if(ev!=='dragleave')e.preventDefault();return}e.preventDefault();
+ if(ev==='dragover')z.classList.add('over');else if(ev==='dragleave')z.classList.remove('over');else{z.classList.remove('over');if(e.dataTransfer.files.length)setUp(z.dataset.dz,e.dataTransfer.files)}})});
+
+/* ---------- Supabase connection + login ---------- */
+var sb=null,BUCKET='site-images';
+function lockMsg(t,h){$('lock').hidden=false;$('lt').textContent=t;$('lp').innerHTML=h;[].forEach.call($('lf').querySelectorAll('input,button,#lm'),function(x){x.hidden=true})}
+function start(){$('lock').hidden=true;$('app').hidden=false;
+ Promise.all([idbGet('state').catch(function(){return null}),sb.from('site_data').select('data').eq('id',1).maybeSingle()]).then(function(r){var draft=r[0],rem=r[1];
+  if(rem.error)toast('Could not load live data: '+rem.error.message+' \u2014 did you run setup.sql?');
+  if(draft&&draft.dirty&&draft.trips){S=draft;toast('Loaded your unpublished draft')}
+  else if(rem.data&&rem.data.data&&rem.data.data.trips){S=fromData(rem.data.data)}
+  else{S=defaults();S.dirty=true}
+  render();updDirty()})}
+(function(){
+ var u=window.SUPABASE_URL,k=window.SUPABASE_ANON_KEY;
+ if(!u||!k||/YOUR-/.test(u+k)){lockMsg('Connect Supabase','Open <b>supabase-config.js</b>, paste your Project URL and anon key, then reload this page.');return}
+ if(!window.supabase){lockMsg('Can\u2019t reach Supabase','The Supabase library didn\u2019t load. Check your internet connection and reload.');return}
+ sb=supabase.createClient(u,k);
+ sb.auth.getSession().then(function(r){if(r.data&&r.data.session)start();else $('lock').hidden=false});
+ $('lf').onsubmit=function(e){e.preventDefault();$('lm').textContent='';$('lb').disabled=true;
+  sb.auth.signInWithPassword({email:$('lem').value.trim(),password:$('lpw').value}).then(function(r){$('lb').disabled=false;if(r.error){$('lm').textContent=r.error.message;return}start()})}})();
+})();
+</script>
+</body>
+</html>
