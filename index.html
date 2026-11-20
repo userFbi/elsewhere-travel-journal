@@ -1081,6 +1081,24 @@ function __start(){
    if(best&&best!==cur)pick(best,true,true)},150)},{passive:true});
   if(all.length){map.fitBounds(L.latLngBounds(all).pad(.25));setTimeout(function(){map.invalidateSize();pick(1,false)},50)}
  })();
+
+ // Keep page position and URL hash in sync (fixes refresh landing on the wrong section)
+ (function(){
+  try{history.scrollRestoration='manual'}catch(e){}
+  var h=''; try{h=decodeURIComponent((location.hash||'').slice(1))}catch(e){}
+  var user=false,ids=['home','about','works','playground','guides','places'],t=null;
+  function align(){if(user||!h)return;var el=document.getElementById(h);if(el)window.scrollTo({top:el.getBoundingClientRect().top+window.pageYOffset,behavior:'instant'})}
+  ['wheel','touchstart','keydown','pointerdown'].forEach(function(ev){addEventListener(ev,function(){user=true},{passive:true,once:true})});
+  align();addEventListener('load',function(){align();setTimeout(align,400)});
+  [100,300,800,1500,2500].forEach(function(ms){setTimeout(align,ms)});
+  if('ResizeObserver' in window){var ro=new ResizeObserver(align);ro.observe(document.body);setTimeout(function(){ro.disconnect()},4000)}
+  // as the visitor scrolls, keep the URL hash on the section being viewed
+  addEventListener('scroll',function(){if(!user)return;clearTimeout(t);t=setTimeout(function(){
+   var mid=innerHeight*.5,cur='';
+   ids.forEach(function(id){var el=document.getElementById(id);if(!el)return;var r=el.getBoundingClientRect();if(r.top<=mid&&r.bottom>mid)cur=id});
+   if(cur&&('#'+cur)!==location.hash){try{history.replaceState(null,'','#'+cur)}catch(e){}}
+  },150)},{passive:true});
+ })();
 }
 loadSiteData(__start);
 </script>
