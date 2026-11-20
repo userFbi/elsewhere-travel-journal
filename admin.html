@@ -213,7 +213,7 @@ function galV(){
  '<div class="row" style="margin:1rem 0;align-items:flex-start;gap:1rem"><div style="width:200px"><div class="it cov"><div class="im"><img src="'+esc(srcOf(S.covers[S.trip],700))+'" alt="" loading="lazy"></div></div></div><div><b>Trip cover</b><p class="h" style="margin:.3rem 0 .7rem;max-width:30rem">Shown on this trip\u2019s card at the top of the gallery and on the home page. Click <b>\u2605 Cover</b> on any photo below to use it, or upload a different image.</p>'+up('cover|'+S.trip,'Upload new cover')+'</div></div>'+
  '<button class="btn sm g" type="button" data-a="addplace">+ Add place</button>';
  g.places.map(function(p,pi){return pi}).reverse().forEach(function(pi){var p=g.places[pi];
-  h+='<div class="place" data-pi="'+pi+'"><div class="ph"><span class="grip" title="Drag to reorder" aria-label="Drag to reorder">\u283f</span><span class="num">'+(pi+1)+'</span><input type="text" data-pn="'+pi+'" value="'+esc(p.n)+'" aria-label="Place name" placeholder="Place name"><input type="text" data-ps="'+pi+'" value="'+esc(p.s)+'" aria-label="State" placeholder="State"><input type="number" step="any" data-plat="'+pi+'" value="'+(p.lat==null?'':p.lat)+'" aria-label="Latitude" placeholder="Lat"><input type="number" step="any" data-plng="'+pi+'" value="'+(p.lng==null?'':p.lng)+'" aria-label="Longitude" placeholder="Lng"><button class="btn sm b" data-a="find|'+pi+'" type="button">\ud83d\udccd Find on map</button><span style="font-size:.75rem;font-weight:700;color:'+(p.lat==null||p.lng==null?'#b00':'#2a7a2a')+'">'+(p.lat==null||p.lng==null?'no map pin yet':'on map \u2713')+'</span>'+(p.lat==null||p.lng==null?'':'<a href="https://www.google.com/maps?q='+p.lat+','+p.lng+'" target="_blank" rel="noopener" style="font-size:.75rem;font-weight:700">check \u2197</a>')+'<button class="btn sm r" data-a="rmplace|'+pi+'" type="button">Delete place</button></div>'+
+  h+='<div class="place" data-pi="'+pi+'"><div class="ph"><span class="grip" title="Drag to reorder" aria-label="Drag to reorder">\u283f</span><span class="num">'+(pi+1)+'</span><input type="text" data-pn="'+pi+'" value="'+esc(p.n)+'" aria-label="Place name" placeholder="Place name"><input type="text" data-ps="'+pi+'" value="'+esc(p.s)+'" aria-label="State" placeholder="State" list="instates" autocomplete="off"><input type="number" step="any" data-plat="'+pi+'" value="'+(p.lat==null?'':p.lat)+'" aria-label="Latitude" placeholder="Lat"><input type="number" step="any" data-plng="'+pi+'" value="'+(p.lng==null?'':p.lng)+'" aria-label="Longitude" placeholder="Lng"><button class="btn sm b" data-a="find|'+pi+'" type="button">\ud83d\udccd Find on map</button><span style="font-size:.75rem;font-weight:700;color:'+(p.lat==null||p.lng==null?'#b00':'#2a7a2a')+'">'+(p.lat==null||p.lng==null?'no map pin yet':'on map \u2713')+'</span>'+(p.lat==null||p.lng==null?'':'<a href="https://www.google.com/maps?q='+p.lat+','+p.lng+'" target="_blank" rel="noopener" style="font-size:.75rem;font-weight:700">check \u2197</a>')+'<button class="btn sm r" data-a="rmplace|'+pi+'" type="button">Delete place</button></div>'+
   '<div class="dz" data-dz="gal|'+pi+'">drop photos for '+esc(p.n||'this place')+'<small>'+p.photos.length+' photo'+(p.photos.length===1?'':'s')+' so far</small></div><div class="row" style="margin-bottom:1rem">'+up('gal|'+pi,'+ Add photos',1)+'</div>'+
   '<div class="grid">'+p.photos.map(function(ph,i){return tile(ph,{cap:'ph|'+pi+'|'+i,acts:'<button class="btn sm'+(S.covers[S.trip]&&S.covers[S.trip].src===ph.src?' y':'')+'" data-a="cover|'+pi+'|'+i+'" type="button">\u2605 Cover</button><button class="btn sm" data-a="mvph|'+pi+'|'+i+'|-1" type="button" aria-label="Move earlier">\u25c0</button><button class="btn sm" data-a="mvph|'+pi+'|'+i+'|1" type="button" aria-label="Move later">\u25b6</button><button class="btn sm r" data-a="rmph|'+pi+'|'+i+'" type="button">Delete</button>'})}).join('')+'</div></div>'});
  h+='</section>';view.innerHTML=h}
@@ -245,26 +245,64 @@ function fromData(d){var D=defaults(),S2={hero:{src:d.hero||D.hero.src},covers:{
 
 /* ---------- Find a place's coordinates (OpenStreetMap Nominatim) ---------- */
 var GEN=/\s+(jyotirling[a]?|temple|mandir|fort|beach|lake|talav|dam|cave|waterfall|falls|point|village|peak|viewpoint)$/i,GP=null,gmSeq=0;
-function parseCoords(t){t=String(t||'');var m=/@(-?\d+\.\d+),(-?\d+\.\d+)/.exec(t)||/!3d(-?\d+\.\d+)!4d(-?\d+\.\d+)/.exec(t)||/[?&](?:q|ll|query)=(-?\d+\.\d+)(?:,|%2C)\s*(-?\d+\.\d+)/.exec(t)||/^\s*(-?\d+\.\d+)\s*[,;\s]\s*(-?\d+\.\d+)\s*$/.exec(t);
+function parseCoords(t){t=String(t||'');try{t=t.replace(/&amp;/g,'&')}catch(e){}
+ var m=/!3d(-?\d+\.\d+)!4d(-?\d+\.\d+)/.exec(t)||/@(-?\d+\.\d+),\s*(-?\d+\.\d+)/.exec(t)||/\b(?:q|ll|query|center|destination|daddr|sll)=(?:loc:)?\+?(-?\d+\.\d+)(?:,|%2C|%2c|\+)\s*(-?\d+\.\d+)/.exec(t)||/\/maps\/(?:place|search|dir)\/(-?\d+\.\d+),\+?(-?\d+\.\d+)/.exec(t)||/^\s*(-?\d+\.\d+)\s*[,;\s]\s*(-?\d+\.\d+)\s*$/.exec(t);
+ if(!m){var d=/(\d{1,3})\s*[\u00b0\u00ba]\s*(?:(\d{1,2})\s*['\u2032]\s*)?(?:(\d{1,2}(?:\.\d+)?)\s*(?:"|\u2033|'')\s*)?([NS])[\s,;]*(\d{1,3})\s*[\u00b0\u00ba]\s*(?:(\d{1,2})\s*['\u2032]\s*)?(?:(\d{1,2}(?:\.\d+)?)\s*(?:"|\u2033|'')\s*)?([EW])/i.exec(t);
+  if(d){var la=+d[1]+(+d[2]||0)/60+(+d[3]||0)/3600,lo=+d[5]+(+d[6]||0)/60+(+d[7]||0)/3600;if(/s/i.test(d[4]))la=-la;if(/w/i.test(d[8]))lo=-lo;m=[0,la,lo]}}
  if(!m)return null;var a=+m[1],b=+m[2];if(Math.abs(a)>90||Math.abs(b)>180)return null;return[Math.round(a*1e6)/1e6,Math.round(b*1e6)/1e6]}
+/* ---- Google Maps link support: full links, short links (maps.app.goo.gl) and name-only links ---- */
+function nameFromLink(u){u=String(u||'');var m=/\/maps\/(?:place|search)\/([^\/@?#]+)/.exec(u)||/[?&]q=([^&#]+)/.exec(u);if(!m)return'';var n='';try{n=decodeURIComponent(m[1].replace(/\+/g,' '))}catch(e){n=m[1].replace(/\+/g,' ')}
+ return /^-?\d+(\.\d+)?[,\s]/.test(n)?'':n.trim()}
+function resolveLink(u){var gets=[
+  function(){return fetch('https://api.allorigins.win/get?url='+encodeURIComponent(u)).then(function(r){return r.json()}).then(function(j){return{url:(j.status&&j.status.url)||'',text:j.contents||''}})},
+  function(){return fetch('https://corsproxy.io/?url='+encodeURIComponent(u)).then(function(r){return r.text().then(function(t){return{url:r.url||'',text:t}})})}];
+ return gets.reduce(function(p,g){return p.then(function(r){if(r&&(parseCoords(r.url)||parseCoords(r.text)))return r;return g().then(function(x){return x&&(x.url||x.text)?x:r}).catch(function(){return r})})},Promise.resolve(null)).then(function(r){return r||{url:'',text:''}})}
+function gmLink(u,my){var box=$('gmr');box.innerHTML='<p class="h" style="margin:0">Reading the map link\u2026</p>';
+ function ok(c,nm,note){if(my!==gmSeq||!GP)return;gmShow([{lat:c[0],lon:c[1],name:nm||'Location from your map link',display_name:note||'Taken from the link you pasted',address:{}}])}
+ function fail(){if(my!==gmSeq||!GP)return;box.innerHTML='<p class="h" style="margin:0">Couldn\u2019t read a location from that link. Open it in Google Maps, long-press / right-click the pin and copy the coordinates (e.g. 19.9975, 73.7898), then paste them here.</p>'}
+ var c=parseCoords(u);if(c){ok(c,nameFromLink(u));return}
+ resolveLink(u).then(function(r){if(my!==gmSeq||!GP)return;var c2=parseCoords(r.url)||parseCoords(r.text),nm=nameFromLink(r.url)||nameFromLink(u);
+  if(c2){ok(c2,nm);return}
+  if(nm)return searchPlaces(nm,'').then(function(rs){if(my!==gmSeq||!GP)return;if(rs.length)gmShow(rs,'Link had no pin, so these are matches for \u201c'+esc(nm)+'\u201d:');else fail()});
+  fail()}).catch(fail)}
 function nsearch(q){return fetch('https://nominatim.openstreetmap.org/search?format=jsonv2&limit=5&addressdetails=1&countrycodes=in&q='+encodeURIComponent(q)).then(function(r){return r.json()})}
-/* tries several spellings (with / without state, without words like "Jyotirling") and merges the matches */
-function searchPlaces(name,state){var n=name.trim(),qs=[],b=n.replace(GEN,'').trim(),seen={},out=[],calls=0;
- if(state)qs.push(n+', '+state);qs.push(n);if(b&&b!==n){if(state)qs.push(b+', '+state);qs.push(b)}
- return qs.reduce(function(p,q){return p.then(function(){if(out.length>=5)return;
+var STATES=['Andhra Pradesh','Arunachal Pradesh','Assam','Bihar','Chhattisgarh','Goa','Gujarat','Haryana','Himachal Pradesh','Jharkhand','Karnataka','Kerala','Madhya Pradesh','Maharashtra','Manipur','Meghalaya','Mizoram','Nagaland','Odisha','Punjab','Rajasthan','Sikkim','Tamil Nadu','Telangana','Tripura','Uttar Pradesh','Uttarakhand','West Bengal','Delhi','Jammu and Kashmir','Ladakh','Chandigarh','Puducherry','Andaman and Nicobar Islands','Dadra and Nagar Haveli and Daman and Diu','Lakshadweep'];
+(function(){var dl=document.createElement('datalist');dl.id='instates';dl.innerHTML=STATES.map(function(x){return'<option value="'+x+'">'}).join('');document.body.appendChild(dl)})();
+/* "maha" / "gujrat" / "Maharashtra " -> canonical state name ('' if not recognised) */
+function normState(t){t=String(t||'').trim().toLowerCase().replace(/\s+/g,' ');if(!t)return'';var al={orissa:'Odisha',gujrat:'Gujarat',pondicherry:'Puducherry',uttaranchal:'Uttarakhand','j&k':'Jammu and Kashmir','jammu & kashmir':'Jammu and Kashmir','nct of delhi':'Delhi','new delhi':'Delhi',mh:'Maharashtra',gj:'Gujarat'};if(al[t])return al[t];
+ var ex=STATES.filter(function(x){return x.toLowerCase()===t});if(ex.length)return ex[0];
+ var pf=STATES.filter(function(x){return x.toLowerCase().indexOf(t)===0});if(pf.length===1)return pf[0];
+ var ct=STATES.filter(function(x){return x.toLowerCase().indexOf(t)>-1});return ct.length===1?ct[0]:''}
+function inSt(x,st){var a=((x.address||{}).state||'').toLowerCase(),b=st.toLowerCase();return a===b||(b==='delhi'&&a.indexOf('delhi')>-1)}
+function setAuto(p,v){try{Object.defineProperty(p,'_auto',{value:v,writable:true,configurable:true,enumerable:false})}catch(e){}}
+/* tries several spellings; when a state is given, only places inside that state are used (results get .st and .nIn) */
+function searchPlaces(name,state){var n=name.trim(),st=normState(state),qs=[],b=n.replace(GEN,'').trim(),seen={},out=[],calls=0;
+ if(st){qs.push(n+', '+st);if(b&&b!==n)qs.push(b+', '+st)}
+ qs.push(n);if(b&&b!==n)qs.push(b);
+ return qs.reduce(function(p,q){return p.then(function(){if(st?out.some(function(x){return inSt(x,st)}):out.length>=5)return;
   return new Promise(function(r){setTimeout(r,calls++?1050:0)}).then(function(){return nsearch(q)}).then(function(rs){(rs||[]).forEach(function(x){if(!seen[x.place_id]){seen[x.place_id]=1;out.push(x)}})}).catch(function(){})})},Promise.resolve())
-  .then(function(){if(state){var st=state.toLowerCase();out.sort(function(a,b){var A=((a.address||{}).state||'').toLowerCase()===st?0:1,B=((b.address||{}).state||'').toLowerCase()===st?0:1;return A-B})}return out})}
-function geo(tid,pi){var p=S.gal[tid]&&S.gal[tid].places[pi];if(!p||!p.n.trim())return Promise.resolve();
- return searchPlaces(p.n,p.s).then(function(rs){if(!rs.length)return;p.lat=Math.round(parseFloat(rs[0].lat)*1e6)/1e6;p.lng=Math.round(parseFloat(rs[0].lon)*1e6)/1e6;save();if(S.tab==='gallery'&&S.trip===tid)softRender()}).catch(function(){})}
+  .then(function(){var res=out;if(st){var a=out.filter(function(x){return inSt(x,st)}),rest=out.filter(function(x){return!inSt(x,st)});res=a.concat(rest);res.nIn=a.length}else res.nIn=out.length;res.st=st;return res})}
+function geo(tid,pi,quiet){var p=S.gal[tid]&&S.gal[tid].places[pi];if(!p||!p.n.trim())return Promise.resolve();
+ return searchPlaces(p.n,p.s).then(function(rs){if(!rs.length)return;
+  if(rs.st&&!rs.nIn){if(!quiet)toast('\u201c'+p.n+'\u201d not found in '+rs.st+' \u2014 try Find on map');return}
+  var x=rs[0];p.lat=Math.round(parseFloat(x.lat)*1e6)/1e6;p.lng=Math.round(parseFloat(x.lon)*1e6)/1e6;setAuto(p,true);
+  var st=(x.address||{}).state;if(rs.st)p.s=rs.st;else if(st&&!String(p.s||'').trim())p.s=st;
+  save();if(S.tab==='gallery'&&S.trip===tid)softRender();if(!quiet)toast('Pinned \u201c'+p.n+'\u201d'+(p.s?' in '+p.s:''))}).catch(function(){})}
+/* runs when the Place or State box is committed: finds the place inside the typed state */
+function autoFind(tid,pi,box){var p=S.gal[tid]&&S.gal[tid].places[pi];if(!p||!p.n.trim())return;
+ if(box&&box.dataset.ps!=null){var ns=normState(p.s);if(ns&&ns!==p.s){p.s=ns;box.value=ns;save()}}
+ if(!String(p.s||'').trim())return;
+ if(p.lat==null||p.lng==null||p._auto)geo(tid,pi)}
 function gmShow(list,msg){var h=msg?'<p class="h" style="margin:0">'+msg+'</p>':'';
  GP.res=list;h+=list.map(function(x,i){var ad=x.address||{},nm=x.name||(x.display_name||'').split(',')[0];
   return'<button class="btn gr" type="button" data-gi="'+i+'"><b>'+esc(nm)+(ad.state?' \u00b7 '+esc(ad.state):'')+'</b><small>'+esc(x.display_name||'')+'</small><small>'+(+x.lat).toFixed(5)+', '+(+x.lon).toFixed(5)+' \u00b7 <a href="https://www.google.com/maps?q='+x.lat+','+x.lon+'" target="_blank" rel="noopener" data-nopick="1">check on Google Maps \u2197</a></small></button>'}).join('');
  $('gmr').innerHTML=h}
 function gmSearch(){if(!GP)return;var q=$('gmq').value.trim(),my=++gmSeq;if(!q)return;
+ if(/^https?:\/\//i.test(q)){gmLink(q,my);return}
  var pc=parseCoords(q);if(pc){gmShow([{lat:pc[0],lon:pc[1],name:'Use these coordinates',display_name:'Exactly as you typed / pasted',address:{}}]);return}
  $('gmr').innerHTML='<p class="h" style="margin:0">Searching the map\u2026</p>';
- searchPlaces(q,q===GP.first?GP.state:'').then(function(rs){if(my!==gmSeq)return;
-  if(rs.length)gmShow(rs);else $('gmr').innerHTML='<p class="h" style="margin:0">No match for \u201c'+esc(q)+'\u201d. Try a shorter name (e.g. just \u201cTrimbakeshwar\u201d), add the nearest town, or paste coordinates / a Google Maps link from your phone.</p>'})
+ searchPlaces(q,GP.state).then(function(rs){if(my!==gmSeq||!GP)return;
+  if(rs.length){if(rs.st&&rs.nIn){rs=rs.slice(0,rs.nIn);gmShow(rs,'Showing matches inside '+esc(rs.st)+' only (clear the State box to search all of India).')}else if(rs.st)gmShow(rs,'Nothing found inside '+esc(rs.st)+' \u2014 showing matches elsewhere.');else gmShow(rs)}else $('gmr').innerHTML='<p class="h" style="margin:0">No match for \u201c'+esc(q)+'\u201d. Try a shorter name (e.g. just \u201cTrimbakeshwar\u201d), add the nearest town, or paste a Google Maps link / coordinates from your phone.</p>'})
   .catch(function(){if(my===gmSeq)$('gmr').innerHTML='<p class="h" style="margin:0">Map search failed. Paste coordinates / a Google Maps link instead.</p>'})}
 function openGm(tid,pi){var p=S.gal[tid]&&S.gal[tid].places[pi];if(!p)return;GP={tid:tid,pi:pi,first:p.n,state:p.s||'',res:[]};
  $('gmt').textContent='Find \u201c'+(p.n||'this place')+'\u201d on the map';$('gmq').value=p.n;$('gm').hidden=false;gmSearch();setTimeout(function(){$('gmq').focus();$('gmq').select()},30)}
@@ -274,8 +312,8 @@ $('gm').addEventListener('mousedown',function(e){if(e.target===$('gm'))closeGm()
 addEventListener('keydown',function(e){if(e.key==='Escape'&&!$('gm').hidden)closeGm()});
 $('gmr').addEventListener('click',function(e){if(e.target.closest('[data-nopick]'))return;var b=e.target.closest('[data-gi]');if(!b||!GP)return;
  var x=GP.res[+b.dataset.gi],p=S.gal[GP.tid]&&S.gal[GP.tid].places[GP.pi];if(!x||!p)return;
- p.lat=Math.round(parseFloat(x.lat)*1e6)/1e6;p.lng=Math.round(parseFloat(x.lon)*1e6)/1e6;var st=(x.address||{}).state;if(st&&st!==p.s)p.s=st;
- var tid=GP.tid;closeGm();save();if(S.tab==='gallery'&&S.trip===tid)softRender();toast('Pinned \u201c'+p.n+'\u201d'+(st?' in '+st:''))});
+ p.lat=Math.round(parseFloat(x.lat)*1e6)/1e6;p.lng=Math.round(parseFloat(x.lon)*1e6)/1e6;var st=(x.address||{}).state;if(st&&!String(p.s||'').trim())p.s=st;setAuto(p,false);
+ var tid=GP.tid;closeGm();save();if(S.tab==='gallery'&&S.trip===tid)softRender();toast('Pinned \u201c'+p.n+'\u201d'+(p.s?' in '+p.s:''))});
 
 /* ---------- New trip form ---------- */
 var COLORS=['--yellow','--pink','--blue','--green','--orange','--purple','--teal','--coral','--indigo','--lime'];
@@ -315,14 +353,14 @@ function setUp(kind,files,done){
  else if(k==='roll'){addFiles(files,'camera-roll',1800).then(function(r){r.forEach(function(it){S.roll.push(it)});if(r.length){save();softRender();toast('Added '+r.length+' photo'+(r.length>1?'s':''))}})}
  else if(k==='gal'){var pi=+a[1],tid=S.trip;addFiles(files,'gallery/'+tid,2000).then(function(r){var p=S.gal[tid].places[pi];if(!p)return;r.forEach(function(it){p.photos.push(it)});if(r.length){save();softRender();toast('Added '+r.length+' photo'+(r.length>1?'s':'')+' to '+p.n)}})}
 }
-document.addEventListener('change',function(e){var f=e.target;if(f.dataset&&f.dataset.up&&f.files&&f.files.length){setUp(f.dataset.up,f.files);f.value=''}});
+document.addEventListener('change',function(e){var f=e.target;if(S&&f.dataset&&(f.dataset.ps!=null||f.dataset.pn!=null)){autoFind(S.trip,+(f.dataset.ps!=null?f.dataset.ps:f.dataset.pn),f)}if(f.dataset&&f.dataset.up&&f.files&&f.files.length){setUp(f.dataset.up,f.files);f.value=''}});
 document.addEventListener('input',function(e){var t=e.target,d=t.dataset||{};if(!S)return;
  if(d.cap){var a=d.cap.split('|'),k=a[0];if(k==='pin')S.pinned[+a[1]].cap=t.value;else if(k==='roll')S.roll[+a[1]].cap=t.value;else if(k==='ph')S.gal[S.trip].places[+a[1]].photos[+a[2]].cap=t.value;save()}
  else if(d.tn!=null){T().filter(function(x){return x.id===S.trip})[0].t=t.value;save()}else if(d.tw!=null){T().filter(function(x){return x.id===S.trip})[0].when=t.value;save()}
  else if(d.tnote!=null){T().filter(function(x){return x.id===S.trip})[0].note=t.value;save()}else if(d.tdesc!=null){T().filter(function(x){return x.id===S.trip})[0].desc=t.value;save()}
  else if(d.pn!=null){S.gal[S.trip].places[+d.pn].n=t.value;save()}else if(d.ps!=null){S.gal[S.trip].places[+d.ps].s=t.value;save()}
- else if((d.plat!=null||d.plng!=null)&&parseCoords(t.value)&&/[,;\s@=]/.test(t.value.trim())){var pc=parseCoords(t.value),q0=S.gal[S.trip].places[+(d.plat!=null?d.plat:d.plng)];q0.lat=pc[0];q0.lng=pc[1];save();softRender();toast('Coordinates set')}
- else if(d.plat!=null||d.plng!=null){var pp=S.gal[S.trip].places[+(d.plat!=null?d.plat:d.plng)],v=parseFloat(t.value);if(d.plat!=null)pp.lat=isNaN(v)?null:v;else pp.lng=isNaN(v)?null:v;save()}});
+ else if((d.plat!=null||d.plng!=null)&&parseCoords(t.value)&&/[,;\s@=]/.test(t.value.trim())){var pc=parseCoords(t.value),q0=S.gal[S.trip].places[+(d.plat!=null?d.plat:d.plng)];q0.lat=pc[0];q0.lng=pc[1];setAuto(q0,false);save();softRender();toast('Coordinates set')}
+ else if(d.plat!=null||d.plng!=null){var pp=S.gal[S.trip].places[+(d.plat!=null?d.plat:d.plng)],v=parseFloat(t.value);if(d.plat!=null)pp.lat=isNaN(v)?null:v;else pp.lng=isNaN(v)?null:v;setAuto(pp,false);save()}});
 function mv(arr,i,d){var j=i+d;if(j<0||j>=arr.length)return;var x=arr.splice(i,1)[0];arr.splice(j,0,x)}
 document.addEventListener('click',function(e){
  var tb=e.target.closest('.tab');if(tb){S.tab=tb.dataset.t;saveUI();render();return}
