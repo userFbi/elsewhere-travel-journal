@@ -1026,7 +1026,7 @@ function __start(){
    all=all.concat(pts);mk[j.n]=[];
    j.places.forEach(function(p){
     var ic=L.divIcon({className:'',html:'<div class="mpin s" style="--c:'+col+'"><b>'+j.n+'</b></div>',iconSize:[26,26],iconAnchor:[13,26],tooltipAnchor:[13,-13]});
-    var m=L.marker([p.lat,p.lng],{icon:ic,title:p.n+' \u2014 '+j.t,keyboard:true}).addTo(map).bindTooltip(p.n,{direction:'right',permanent:true});
+    var m=L.marker([p.lat,p.lng],{icon:ic,title:p.n+' \u2014 '+j.t,keyboard:true}).addTo(map).bindTooltip(p.n,{direction:'right'});
     m.on('click',function(){pick(j.n,false);map.flyTo([p.lat,p.lng],Math.max(map.getZoom(),12),{duration:1})});mk[j.n].push(m)});
    var route=j.places.map(function(p){return p.n.replace(/&/g,'&amp;')}).join(' \u2192 ');
    var b=document.createElement('div');b.className='le';b.style.setProperty('--c','var('+j.c+')');
