@@ -192,9 +192,9 @@ function newItem(folder,file,max){return proc(file,max).then(function(b){var bas
  return sb.storage.from(BUCKET).upload(path,b,{contentType:'image/jpeg',cacheControl:'31536000'}).then(function(r){if(r.error)throw r.error;return{src:sb.storage.from(BUCKET).getPublicUrl(path).data.publicUrl,cap:''}})})}
 function addFiles(files,folder,max){var list=[].filter.call(files,function(f){return /^image\//.test(f.type)||/\.(jpe?g|png|webp|gif|avif|heic)$/i.test(f.name)});
  if(!list.length){toast('No image files selected');return Promise.resolve([])}
- toast('Processing '+list.length+' photo'+(list.length>1?'s':'')+'\u2026');var out=[],bad=0;
- return list.reduce(function(p,f){return p.then(function(){return newItem(folder,f,max).then(function(it){it.cap=f.name.replace(/\.[^.]+$/,'').replace(/[-_]+/g,' ');out.push(it)}).catch(function(){bad++})})},Promise.resolve())
-  .then(function(){if(bad)toast(bad+' file(s) failed to upload (HEIC isn\u2019t supported by every browser; also check you are signed in)');return out})}
+ toast('Processing '+list.length+' photo'+(list.length>1?'s':'')+'\u2026');var out=[],bad=0,why='';
+ return list.reduce(function(p,f){return p.then(function(){return newItem(folder,f,max).then(function(it){it.cap=f.name.replace(/\.[^.]+$/,'').replace(/[-_]+/g,' ');out.push(it)}).catch(function(e){bad++;if(!why)why=(e&&(e.message||e.error_description||e.error))||String(e);console.error('Upload failed:',e)})})},Promise.resolve())
+  .then(function(){if(bad)toast(bad+' file(s) failed: '+why);return out})}
 
 /* ---------- Views ---------- */
 var view=$('view');
