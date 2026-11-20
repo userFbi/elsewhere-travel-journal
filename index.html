@@ -216,6 +216,20 @@ header.sc{background:color-mix(in srgb,var(--bg) 82%,transparent);-webkit-backdr
 .mpin b{transform:rotate(45deg);font:700 14px var(--sans);color:#111}
 .mpin.s{width:26px;height:26px;border-width:2px}.mpin.s b{font-size:12px}
 .mpin b{opacity:0;transition:opacity .2s}.mpin.on b{opacity:1}
+.mpin.on.sel{transform:rotate(-45deg) scale(1.6);box-shadow:0 0 0 4px #111,0 4px 12px rgba(0,0,0,.55)}
+.mapbox{position:relative}
+.pcard{position:absolute;left:22px;right:22px;bottom:22px;z-index:5;display:grid;grid-template-columns:auto 1fr auto;gap:.5rem .8rem;align-items:center;max-width:460px;margin-inline:auto;padding:.7rem .8rem;background:var(--card,#fff);color:#111;border:2px solid #111;border-radius:14px;box-shadow:4px 4px 0 #111}
+.pcard[hidden]{display:none}
+.pcard .pb{width:40px;height:40px;border:2px solid #111;border-radius:50%;background:var(--yellow,#ffe24a);color:#111;font:700 22px/1 var(--sans);cursor:pointer;display:grid;place-items:center;padding:0;transition:.15s}
+.pcard .pb:hover:not(:disabled){transform:translate(-1px,-1px);box-shadow:2px 2px 0 #111}
+.pcard .pb:disabled{opacity:.35;cursor:default}
+.pcard .pci{display:flex;gap:.7rem;align-items:center;min-width:0}
+.pcard .pcn{flex:none;width:34px;height:34px;border:2px solid #111;border-radius:50%;display:grid;place-items:center;font:700 15px var(--sans);background:var(--c,#ffe24a)}
+.pcard .pct{display:block;font:700 1rem/1.2 var(--sans);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pcard small{display:block;font-size:.72rem;letter-spacing:.06em;text-transform:uppercase;opacity:.7;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pcard .pcl{grid-column:1/-1;justify-self:center;font:700 .9rem var(--sans);color:#111;border-bottom:2px solid #111;padding-bottom:1px}
+.pcard .pcl:hover{background:var(--yellow,#ffe24a)}
+@media(max-width:820px){.pcard{left:14px;right:14px;bottom:14px;padding:.55rem .6rem}.pcard .pb{width:36px;height:36px}}
 .mpin.on{transform:rotate(-45deg) scale(1.25);box-shadow:0 0 0 4px rgba(255,255,255,.7),0 4px 10px rgba(0,0,0,.5)}
 .leaflet-tooltip{font:700 14px var(--sans);color:#111;border:2px solid #111;border-radius:6px;box-shadow:3px 3px 0 #111}
 .leaflet-control-attribution{font-size:10px}
@@ -644,6 +658,12 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%;-webkit-tap-highlight-c
   <div class="mapgrid rv">
    <div class="mapbox box">
     <div id="imap" aria-label="Map with pins on the places I have travelled to"></div>
+    <div class="pcard" id="pcard" hidden>
+     <button class="pb" id="pprev" type="button" aria-label="Previous place">&#8249;</button>
+     <div class="pci"><span class="pcn" id="pcn"></span><div style="min-width:0"><strong class="pct" id="pct"></strong><small id="pcs"></small></div></div>
+     <button class="pb" id="pnext" type="button" aria-label="Next place">&#8250;</button>
+     <a class="pcl" id="pcl" target="_blank" rel="noopener">View this place&rsquo;s photos &#8599;</a>
+    </div>
    </div>
    <aside class="logbook box" aria-label="Travel log">
     <div class="lhead"><h3>my travel log</h3><span class="scribble"></span></div>
@@ -789,7 +809,7 @@ function __start(){
   'rishikesh-chopta':[['Rishikesh','Uttarakhand',30.0869,78.2676],['Devprayag','Uttarakhand',30.146,78.599],['Chopta','Uttarakhand',30.388,79.098],['Tungnath','Uttarakhand',30.4896,79.2186]]};
  function tripPlaces(id){var g=SD.gal&&SD.gal[id],src=g?g.places:(DP[id]||[]).map(function(p){return{n:p[0],s:p[1],lat:p[2],lng:p[3]}}),out=[];
   src.forEach(function(p){var la=p.lat,ln=p.lng;if(typeof la!=='number'||typeof ln!=='number'){var d=(DP[id]||[]).filter(function(x){return x[0]===p.n})[0];if(d){la=d[2];ln=d[3]}}
-   if(typeof la==='number'&&typeof ln==='number')out.push({n:p.n,s:p.s||'',lat:la,lng:ln})});return out}
+   if(typeof la==='number'&&typeof ln==='number')out.push({n:p.n,s:p.s||'',lat:la,lng:ln,raw:p})});return out}
  function mapTrips(){return TRIPS.map(function(t){return{id:t.id,t:t.t,when:t.when,c:t.c||'--yellow',d:t.desc||'',places:tripPlaces(t.id)}}).filter(function(t){return t.places.length})}
  var MT=mapTrips(),stt={},npl=0;MT.forEach(function(t){t.places.forEach(function(p){npl++;if(p.s)stt[p.s]=1})});
  $('stat').textContent=MT.length+' journeys \u00b7 '+Object.keys(stt).length+' states \u00b7 '+npl+' places \u00b7 '+(matchMedia('(pointer:coarse)').matches?'tap a pin to zoom':'click the map to zoom');
@@ -1008,17 +1028,30 @@ function __start(){
   var map=L.map(box,{attributionControl:false,layers:[sat],scrollWheelZoom:false,minZoom:4,maxZoom:17,zoomSnap:.5,dragging:!L.Browser.mobile});
   if('ResizeObserver' in window)new ResizeObserver(function(){map.invalidateSize()}).observe(box);
   map.on('click',function(){map.scrollWheelZoom.enable()});box.addEventListener('mouseleave',function(){map.scrollWheelZoom.disable()});
-  var all=[],list=$('plist'),mk={},items={},lines={},pc=0;
+  var all=[],list=$('plist'),mk={},items={},lines={},pc=0,PL=[],selG=0;
   var cur=0,mqL=matchMedia('(max-width:820px)'),lt=null;
   function ll(j){return j.places.map(function(p){return[p.lat,p.lng]})}
   function scrollCard(n){var it=items[n];if(!it||list.scrollWidth<=list.clientWidth+2)return;
    list.scrollTo({left:list.scrollLeft+it.getBoundingClientRect().left-list.getBoundingClientRect().left-(list.clientWidth-it.offsetWidth)/2,behavior:'smooth'})}
   function pick(n,fly,fromScroll){
    cur=n;if(!fromScroll&&mqL.matches)scrollCard(n);
-   Object.keys(mk).forEach(function(k){var on=+k===n;mk[k].forEach(function(m){var e=m.getElement();if(e&&e.firstChild)e.firstChild.classList.toggle('on',on);m.setZIndexOffset(on?1000:0)});items[k].classList.toggle('on',on);items[k].firstChild.setAttribute('aria-expanded',on);
+   if(!n)selG=0;else if(!selG||PL[selG-1].j!==n)selG=PL.filter(function(x){return x.j===n})[0].g;
+   Object.keys(mk).forEach(function(k){var on=+k===n;mk[k].forEach(function(m){var e=m.getElement();if(e&&e.firstChild)e.firstChild.classList.toggle('on',on);m.setZIndexOffset(on?1000:0)});refreshSel();items[k].classList.toggle('on',on);items[k].firstChild.setAttribute('aria-expanded',on);
     if(lines[k]){if(on){if(!map.hasLayer(lines[k]))lines[k].addTo(map)}else if(map.hasLayer(lines[k]))map.removeLayer(lines[k])}});
    if(fly&&n){var pts=ll(J[n-1]);map.flyToBounds(L.latLngBounds(pts).pad(pts.length>1?.4:0),{maxZoom:pts.length>1?13:12,duration:1.2,padding:[40,40]})}
   }
+  function driveLink(it){var r=it.p.raw||{},k,v,any='';
+   for(k in r){v=r[k];if(typeof v==='string'&&/^https?:\/\//i.test(v)){if(/drive\.google|docs\.google|photos\.app\.goo|photos\.google/i.test(v))return v;if(!any)any=v}}
+   return any||('gallery.html?trip='+encodeURIComponent(MT[it.j-1].id))}
+  function refreshSel(){
+   PL.forEach(function(it){var e=it.m.getElement();if(e&&e.firstChild)e.firstChild.classList.toggle('sel',it.g===selG)});
+   var c=$('pcard');if(!selG){c.hidden=true;return}
+   var it=PL[selG-1],j=J[it.j-1];c.hidden=false;
+   c.style.setProperty('--c','var('+j.c+')');
+   $('pcn').textContent=it.g;$('pct').textContent=it.p.n;$('pcs').textContent=(it.p.s||j.pl)+' \u00b7 '+j.t;
+   $('pcl').href=driveLink(it);$('pprev').disabled=selG<=1;$('pnext').disabled=selG>=PL.length}
+  function sel(g,fly){var it=PL[g-1];if(!it)return;if(cur!==it.j)pick(it.j,false);selG=g;refreshSel();
+   if(fly)map.flyTo([it.p.lat,it.p.lng],Math.max(map.getZoom(),12),{duration:1})}
   function showAll(){pick(0,false);map.flyToBounds(L.latLngBounds(all).pad(.25),{duration:1.2})}
   J.forEach(function(j){
    var col=getComputedStyle(document.documentElement).getPropertyValue(j.c).trim()||'#ffe24a',pts=ll(j);
@@ -1026,14 +1059,14 @@ function __start(){
    all=all.concat(pts);mk[j.n]=[];
    j.places.forEach(function(p){
     pc++;var ic=L.divIcon({className:'',html:'<div class="mpin s" style="--c:'+col+'"><b>'+pc+'</b></div>',iconSize:[26,26],iconAnchor:[13,26],tooltipAnchor:[13,-13]});
-    var m=L.marker([p.lat,p.lng],{icon:ic,title:p.n+' \u2014 '+j.t,keyboard:true}).addTo(map).bindTooltip(p.n,{direction:'right'});
-    m.on('click',function(){pick(j.n,false);map.flyTo([p.lat,p.lng],Math.max(map.getZoom(),12),{duration:1})});mk[j.n].push(m)});
+    var g=pc,m=L.marker([p.lat,p.lng],{icon:ic,title:p.n+' \u2014 '+j.t,keyboard:true}).addTo(map).bindTooltip(p.n,{direction:'right'});
+    PL.push({g:g,j:j.n,p:p,m:m});m.on('click',function(){sel(g,true)});mk[j.n].push(m)});
    var route=j.places.map(function(p){return p.n.replace(/&/g,'&amp;')}).join(' \u2192 ');
    var b=document.createElement('div');b.className='le';b.style.setProperty('--c','var('+j.c+')');
    b.innerHTML='<button class="le-h" type="button" aria-expanded="false"><span class="pn">'+j.n+'</span><span class="le-m"><span class="le-date">'+j.w+'</span><small>'+j.pl+' \u00b7 '+j.places.length+' place'+(j.places.length>1?'s':'')+'</small><strong>'+j.t.replace(/&/g,'&amp;')+'</strong></span></button><div class="le-b"><div class="le-i">'+(j.d?'<p>'+j.d+'</p>':'')+'<p><b>Places:</b> '+route+'</p><a class="arrow" href="gallery.html?trip='+encodeURIComponent(MT[j.n-1].id)+'">View photos <span aria-hidden="true">↗</span></a></div></div>';
    b.firstChild.onclick=function(){pick(j.n,true)};list.appendChild(b);items[j.n]=b;
   });
-  $('pall').onclick=showAll;
+  $('pall').onclick=showAll;$('pprev').onclick=function(){sel(selG-1,true)};$('pnext').onclick=function(){sel(selG+1,true)};
   list.addEventListener('scroll',function(){if(!mqL.matches)return;clearTimeout(lt);lt=setTimeout(function(){
    var c=list.getBoundingClientRect(),mid=c.left+c.width/2,best=0,bd=1e9;
    J.forEach(function(j){var r=items[j.n].getBoundingClientRect(),d=Math.abs(r.left+r.width/2-mid);if(d<bd){bd=d;best=j.n}});
