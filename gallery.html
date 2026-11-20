@@ -823,7 +823,7 @@ function __start(){
   var h=shown.length?'':'<p class="ghint">\u2191 tap a place to see its photos</p>';
   shown.forEach(function(pl){var n=v.places.indexOf(pl)+1;
    h+='<section class="chap" aria-label="'+q2(pl.n)+'"><div class="chead"><span class="cnum" aria-hidden="true">'+('0'+n).slice(-2)+'</span><h4>'+q2(pl.n)+'</h4><span class="cst">'+q2(pl.s)+'</span>'+(pl.photos.length?'<button class="cdl" type="button" data-z="'+v.places.indexOf(pl)+'">'+ICON+'<span>Download '+pl.photos.length+'</span></button>':'')+'</div>'+
-   (pl.photos.length?'<div class="cgrid">'+pl.photos.map(function(p){return'<figure class="tile" style="margin:0"><button class="topen" type="button" data-o="'+p.k+'" aria-label="Open photo: '+q2(p.c)+'"><img src="'+gsrc(p.id,900)+'" alt="'+q2(p.c)+' \u2014 '+q2(p.place)+'" loading="lazy" draggable="false"></button><figcaption class="tcap">'+q2(p.c)+'</figcaption><button class="tdl" type="button" data-d="'+p.k+'" aria-label="Download '+q2(p.c)+'">'+ICON+'</button></figure>'}).join('')+'</div>':'<div class="gempty">No photos here yet \u2014 coming soon</div>')+'</section>'});
+   (pl.photos.length?'<div class="cgrid">'+pl.photos.map(function(p){return'<figure class="tile" style="margin:0"><button class="topen" type="button" data-o="'+p.k+'" aria-label="Open photo: '+q2(p.c)+'"><img src="'+gsrc(p.id,900)+'" alt="'+q2(p.c)+' \u2014 '+q2(p.place)+'" loading="lazy" draggable="false"></button><figcaption class="tcap">'+q2(p.c)+'</figcaption></figure>'}).join('')+'</div>':'<div class="gempty">No photos here yet \u2014 coming soon</div>')+'</section>'});
   $('gchaps').innerHTML=h;
  }
  function selectTrip(id,place){
@@ -838,8 +838,8 @@ function __start(){
  }
  gAllB.onclick=function(){var l=[];gView.places.forEach(function(p){l=l.concat(p.photos)});dlZip(l,gView.title,gAllB)};
  $('gplaces').addEventListener('click',function(e){var b=e.target.closest('[data-p]');if(!b)return;var k=+b.dataset.p;gSel=gSel===k?-1:k;renderPlaces();renderChaps();if(gSel>=0)$('gchaps').scrollIntoView({behavior:'smooth',block:'start'})});
- $('gchaps').addEventListener('click',function(e){var d=e.target.closest('[data-d]'),o=e.target.closest('[data-o]'),z=e.target.closest('[data-z]');
-  if(d)dlOne(gList[+d.dataset.d],d);else if(o)openLb(+o.dataset.o,o);else if(z){var p=gView.places[+z.dataset.z];if(p.drive)window.open(p.drive,'_blank','noopener');else dlZip(p.photos,p.n,z)}});
+ $('gchaps').addEventListener('click',function(e){var o=e.target.closest('[data-o]'),z=e.target.closest('[data-z]');
+  if(o)openLb(+o.dataset.o,o);else if(z){var p=gView.places[+z.dataset.z];if(p.drive)window.open(p.drive,'_blank','noopener');else dlZip(p.photos,p.n,z)}});
  // lightbox
  var lb=$('lb'),lbFrom=null;
  function lbShow(){var p=gList[lbI];$('lbi').src=gsrc(p.id,1600);$('lbi').alt=p.c;$('lbc').textContent=p.c;$('lbpl').textContent=p.place+' \u00b7 '+(lbI+1)+' / '+gList.length;var m=gList.length<2;$('lbp').hidden=$('lbnx').hidden=m}
