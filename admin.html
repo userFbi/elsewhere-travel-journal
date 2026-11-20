@@ -186,11 +186,14 @@ function updDirty(){var d=!!(S&&S.dirty);$('dirty').hidden=!d;$('pubq').style.op
 var urls=new WeakMap();
 function srcOf(it,w){if(!it)return'';if(it.blob){var u=urls.get(it.blob);if(!u){u=URL.createObjectURL(it.blob);urls.set(it.blob,u)}return u}
  if(/^photo-/.test(it.src))return UN+it.src+'?auto=format&fit=crop&w='+(w||500)+'&q=70';return it.src}
-function proc(file,max){return createImageBitmap(file).then(function(bm){var s=Math.min(1,max/Math.max(bm.width,bm.height)),c=document.createElement('canvas');c.width=Math.max(1,Math.round(bm.width*s));c.height=Math.max(1,Math.round(bm.height*s));
+function loadHeic(){return window.heic2any?Promise.resolve():new Promise(function(res,rej){var t=document.createElement('script');t.src='https://cdn.jsdelivr.net/npm/heic2any@0.0.4/dist/heic2any.min.js';t.onload=res;t.onerror=function(){rej(new Error('HEIC converter failed to load'))};document.head.appendChild(t)})}
+function decode(file){return createImageBitmap(file).catch(function(){return new Promise(function(res,rej){var u=URL.createObjectURL(file),i=new Image();i.onload=function(){URL.revokeObjectURL(u);createImageBitmap(i).then(res,rej)};i.onerror=function(){URL.revokeObjectURL(u);rej(new Error('decode failed'))};i.src=u})})}
+function toBitmap(file){return decode(file).catch(function(){return loadHeic().then(function(){return heic2any({blob:file,toType:'image/jpeg',quality:.9})}).then(function(r){return decode(Array.isArray(r)?r[0]:r)}).catch(function(){throw new Error('Can\u2019t read this image. Save it as JPG or PNG and try again.')})})}
+function proc(file,max){return toBitmap(file).then(function(bm){var s=Math.min(1,max/Math.max(bm.width,bm.height)),c=document.createElement('canvas');c.width=Math.max(1,Math.round(bm.width*s));c.height=Math.max(1,Math.round(bm.height*s));
  var x=c.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,c.width,c.height);x.drawImage(bm,0,0,c.width,c.height);return new Promise(function(r){c.toBlob(r,'image/jpeg',.86)})})}
 function newItem(folder,file,max){return proc(file,max).then(function(b){var base=slug(file.name.replace(/\.[^.]+$/,'')).slice(0,40),path=folder+'/'+base+'-'+Date.now().toString(36)+Math.random().toString(36).slice(2,5)+'.jpg';
  return sb.storage.from(BUCKET).upload(path,b,{contentType:'image/jpeg',cacheControl:'31536000'}).then(function(r){if(r.error)throw r.error;return{src:sb.storage.from(BUCKET).getPublicUrl(path).data.publicUrl,cap:''}})})}
-function addFiles(files,folder,max){var list=[].filter.call(files,function(f){return /^image\//.test(f.type)||/\.(jpe?g|png|webp|gif|avif|heic)$/i.test(f.name)});
+function addFiles(files,folder,max){var list=[].filter.call(files,function(f){return /^image\//.test(f.type)||/\.(jpe?g|png|webp|gif|avif|heic|heif)$/i.test(f.name)});
  if(!list.length){toast('No image files selected');return Promise.resolve([])}
  toast('Processing '+list.length+' photo'+(list.length>1?'s':'')+'\u2026');var out=[],bad=0,why='';
  return list.reduce(function(p,f){return p.then(function(){return newItem(folder,f,max).then(function(it){it.cap=f.name.replace(/\.[^.]+$/,'').replace(/[-_]+/g,' ');out.push(it)}).catch(function(e){bad++;if(!why)why=(e&&(e.message||e.error_description||e.error))||String(e);console.error('Upload failed:',e)})})},Promise.resolve())
@@ -388,7 +391,7 @@ document.addEventListener('click',function(e){
  if(k==='addplace'){var f=document.querySelector('.place input[data-pn]');if(f){f.focus();f.select();f.scrollIntoView({block:'nearest',behavior:'smooth'})}}});
 ['dragover','dragleave','drop'].forEach(function(ev){document.addEventListener(ev,function(e){var z=e.target.closest&&e.target.closest('[data-dz]');
  if(!z){if(ev!=='dragleave')e.preventDefault();return}e.preventDefault();
- if(ev==='dragover')z.classList.add('over');else if(ev==='dragleave')z.classList.remove('over');else{z.classList.remove('over');var imgs=[].filter.call(e.dataTransfer.files,function(f){return/^image\//.test(f.type)||/\.(heic|heif)$/i.test(f.name)});if(imgs.length)setUp(z.dataset.dz,imgs);else toast('Drop image files only')}})});
+ if(ev==='dragover')z.classList.add('over');else if(ev==='dragleave')z.classList.remove('over');else{z.classList.remove('over');var imgs=[].filter.call(e.dataTransfer.files,function(f){return/^image\//.test(f.type)||/\.(jpe?g|png|webp|gif|avif|heic|heif)$/i.test(f.name)});if(imgs.length)setUp(z.dataset.dz,imgs);else toast('Drop image files only')}})});
 
 /* ---------- Drag to reorder (trip tabs + place entries) ---------- */
 var DR=null,supT=0;
