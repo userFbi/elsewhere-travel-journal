@@ -272,7 +272,13 @@ function gmLink(u,my){var box=$('gmr');box.innerHTML='<p class="h" style="margin
   if(c2){ok(c2,nm);return}
   if(nm)return searchPlaces(nm,'').then(function(rs){if(my!==gmSeq||!GP)return;if(rs.length)gmShow(rs,'Link had no pin, so these are matches for \u201c'+esc(nm)+'\u201d:');else fail()});
   fail()}).catch(fail)}
-function nsearch(q){return fetch('https://nominatim.openstreetmap.org/search?format=jsonv2&limit=5&addressdetails=1&countrycodes=in&q='+encodeURIComponent(q)).then(function(r){return r.json()})}
+function nomi(q){return fetch('https://nominatim.openstreetmap.org/search?format=jsonv2&limit=10&addressdetails=1&countrycodes=in&accept-language=en&q='+encodeURIComponent(q)).then(function(r){return r.json()}).then(function(a){return Array.isArray(a)?a:[]}).catch(function(){return[]})}
+/* Photon (OpenStreetMap, fuzzy / typo tolerant) - converted to the same shape as Nominatim results */
+function photon(q){return fetch('https://photon.komoot.io/api/?limit=10&lang=en&bbox=68,6,98,38&q='+encodeURIComponent(q)).then(function(r){return r.json()}).then(function(j){
+  return((j&&j.features)||[]).filter(function(f){var c=((f.properties||{}).countrycode||'').toUpperCase();return f.geometry&&f.geometry.coordinates&&(!c||c==='IN')}).map(function(f){var pr=f.properties||{},c=f.geometry.coordinates,
+   parts=[pr.name,pr.street,pr.locality,pr.district,pr.city,pr.county,pr.state,pr.country].filter(function(v,i,a){return v&&a.indexOf(v)===i});
+   return{place_id:'ph'+(pr.osm_type||'')+(pr.osm_id||c.join('_')),lat:c[1],lon:c[0],name:pr.name||'',display_name:parts.join(', '),address:{state:pr.state||''}}})}).catch(function(){return[]})}
+function nsearch(q){return Promise.all([nomi(q),photon(q)]).then(function(a){return a[0].concat(a[1])})}
 var STATES=['Andhra Pradesh','Arunachal Pradesh','Assam','Bihar','Chhattisgarh','Goa','Gujarat','Haryana','Himachal Pradesh','Jharkhand','Karnataka','Kerala','Madhya Pradesh','Maharashtra','Manipur','Meghalaya','Mizoram','Nagaland','Odisha','Punjab','Rajasthan','Sikkim','Tamil Nadu','Telangana','Tripura','Uttar Pradesh','Uttarakhand','West Bengal','Delhi','Jammu and Kashmir','Ladakh','Chandigarh','Puducherry','Andaman and Nicobar Islands','Dadra and Nagar Haveli and Daman and Diu','Lakshadweep'];
 (function(){var dl=document.createElement('datalist');dl.id='instates';dl.innerHTML=STATES.map(function(x){return'<option value="'+x+'">'}).join('');document.body.appendChild(dl)})();
 /* "maha" / "gujrat" / "Maharashtra " -> canonical state name ('' if not recognised) */
@@ -283,11 +289,15 @@ function normState(t){t=String(t||'').trim().toLowerCase().replace(/\s+/g,' ');i
 function inSt(x,st){var a=((x.address||{}).state||'').toLowerCase(),b=st.toLowerCase();return a===b||(b==='delhi'&&a.indexOf('delhi')>-1)}
 function setAuto(p,v){try{Object.defineProperty(p,'_auto',{value:v,writable:true,configurable:true,enumerable:false})}catch(e){}}
 /* tries several spellings; when a state is given, only places inside that state are used (results get .st and .nIn) */
-function searchPlaces(name,state){var n=name.trim(),st=normState(state),qs=[],b=n.replace(GEN,'').trim(),seen={},out=[],calls=0;
+function searchPlaces(name,state){var n=name.trim().replace(/\s+/g,' '),st=normState(state),qs=[],b=n.replace(GEN,'').trim(),seen={},out=[],calls=0;
+ function add(a){if(a&&b&&a!==n&&a!==b&&qs.indexOf(a)<0)qs.push(a)}
+ var alt=n.replace(/\bmandir\b/i,'temple').replace(/\bjyotirlinga\b/i,'jyotirling');
  if(st){qs.push(n+', '+st);if(b&&b!==n)qs.push(b+', '+st)}
- qs.push(n);if(b&&b!==n)qs.push(b);
- return qs.reduce(function(p,q){return p.then(function(){if(st?out.some(function(x){return inSt(x,st)}):out.length>=5)return;
-  return new Promise(function(r){setTimeout(r,calls++?1050:0)}).then(function(){return nsearch(q)}).then(function(rs){(rs||[]).forEach(function(x){if(!seen[x.place_id]){seen[x.place_id]=1;out.push(x)}})}).catch(function(){})})},Promise.resolve())
+ qs.push(n);if(b&&b!==n)qs.push(b);if(alt!==n)qs.push(alt);
+ if(b&&b===n&&n.split(' ').length>1)qs.push(n.split(' ')[0]+(st?', '+st:''));
+ var enough=function(){return st?out.filter(function(x){return inSt(x,st)}).length>=5:out.length>=8};
+ return qs.reduce(function(p,q){return p.then(function(){if(enough())return;
+  return new Promise(function(r){setTimeout(r,calls++?1050:0)}).then(function(){return nsearch(q)}).then(function(rs){(rs||[]).forEach(function(x){var nm=(x.name||(x.display_name||'').split(',')[0]||'').toLowerCase(),k=nm+'|'+(+x.lat).toFixed(2)+'|'+(+x.lon).toFixed(2);if(!seen[k]){seen[k]=1;out.push(x)}})}).catch(function(){})})},Promise.resolve())
   .then(function(){var res=out;if(st){var a=out.filter(function(x){return inSt(x,st)}),rest=out.filter(function(x){return!inSt(x,st)});res=a.concat(rest);res.nIn=a.length}else res.nIn=out.length;res.st=st;return res})}
 function geo(tid,pi,quiet){var p=S.gal[tid]&&S.gal[tid].places[pi];if(!p||!p.n.trim())return Promise.resolve();
  return searchPlaces(p.n,p.s).then(function(rs){if(!rs.length)return;
