@@ -67,13 +67,7 @@ body.drg,body.drg *{cursor:grabbing!important;-webkit-user-select:none;user-sele
 .pill{cursor:pointer;padding:.45rem 1rem;border:2px solid var(--ink);border-radius:999px;background:var(--c,var(--card));font-weight:700;font-size:.85rem}
 .pill[aria-pressed=true]{background:var(--c,var(--yellow));box-shadow:3px 3px 0 var(--ink);transform:translateY(-2px)}
 .sw.sm{gap:.45rem}.sw.sm span{width:30px;height:30px;border-width:2px}.sw.sm input:checked+span{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--ink)}
-.td{border:2px solid var(--ink);background:color-mix(in srgb,var(--yellow) 10%,var(--card));padding:1.2rem 1.2rem 1rem;margin:1rem 0 1.6rem;position:relative}
-.td-h{display:flex;align-items:baseline;gap:.7rem;flex-wrap:wrap;margin-bottom:1rem}.td-h b{font:700 1.5rem/1 var(--hand)}.td-h span{font-size:.82rem;opacity:.65}
-.td .fr .fr{gap:.6rem}
-.td .cvrow{display:flex;gap:1.1rem;align-items:flex-start;flex-wrap:wrap;text-transform:none;letter-spacing:0;font-weight:500}
-.td .cvrow p{margin:.1rem 0 .7rem;font-size:.85rem;opacity:.7;max-width:30rem;font-weight:500}
-.td-f{display:flex;justify-content:space-between;align-items:center;gap:.8rem;flex-wrap:wrap;margin-top:1.2rem;padding-top:.9rem;border-top:2px dashed var(--ink)}.td-f span{font-size:.8rem;opacity:.65}
-@media(max-width:600px){.td .fr{grid-template-columns:1fr}.td .fr .fr{grid-template-columns:1fr 1fr}}
+.ccol{display:flex;align-items:center;gap:.8rem;flex-wrap:wrap;margin:.2rem 0 .8rem}.ccol b{font-size:.85rem}
 .steps{line-height:1.7}.steps code{background:var(--yellow);padding:.1rem .4rem;border:1.5px solid var(--ink);border-radius:4px;font-size:.85em}
 .stat{display:flex;gap:.6rem;flex-wrap:wrap;margin:1rem 0}
 .stat span{padding:.35rem .8rem;border:2px solid var(--ink);border-radius:999px;background:var(--green);font-weight:700;font-size:.85rem}
@@ -87,6 +81,7 @@ body.drg,body.drg *{cursor:grabbing!important;-webkit-user-select:none;user-sele
 [hidden]{display:none!important}
 .mo{position:fixed;inset:0;z-index:100;display:grid;place-items:center;padding:1rem;background:rgba(12,9,7,.7);backdrop-filter:blur(5px);overflow:auto}
 .mf{position:relative;width:min(100%,640px);max-height:calc(100vh - 2rem);overflow:auto;padding:1.6rem;transform:rotate(-.4deg)}
+#cf{z-index:120}.cfb{width:min(100%,460px);transform:rotate(.4deg)}.cfb .lead{margin-bottom:1rem}.cfb .prev{margin-bottom:.2rem}.cfb .prev img{width:64px;height:48px;object-fit:cover;border:2px solid var(--ink);flex:none}.cfb .btn.r{background:var(--red)}
 .mf .tape{position:absolute;top:-14px;left:50%;margin-left:-60px;width:120px;height:26px;background:rgba(255,226,74,.85);border:2px solid var(--ink);transform:rotate(-2deg)}
 .mf h2{font:700 2.3rem/1 var(--hand);margin:.4rem 0 .2rem;letter-spacing:0}
 .mf .lead{margin:0 0 1.2rem;font-size:.9rem;opacity:.7}
@@ -218,24 +213,15 @@ function homeV(){
  h+='<section class="box sec"><h3>Pinned memories</h3><p class="h">The 4 polaroids hanging on the pegboard.</p><div class="grid">'+S.pinned.map(function(p,i){return tile(p,{cap:'pin|'+i,dz:'pin|'+i,acts:up('pin|'+i,'Replace')})}).join('')+'</div></section>';
  h+='<section class="box sec"><h3>Camera roll <span style="font:500 .9rem var(--sans)">('+S.roll.length+' photos)</span></h3><p class="h">The photos you flip through on the camera. Drop several at once.</p><div class="dz" data-dz="roll">drop photos here<small>or use the button below</small></div><div class="row" style="margin-bottom:1rem">'+up('roll','+ Add photos',1)+'</div><div class="grid">'+S.roll.map(function(p,i){return tile(p,{cap:'roll|'+i,acts:'<button class="btn sm" data-a="mvroll|'+i+'|-1" type="button" aria-label="Move earlier">\u25c0</button><button class="btn sm" data-a="mvroll|'+i+'|1" type="button" aria-label="Move later">\u25b6</button><button class="btn sm r" data-a="rmroll|'+i+'" type="button">Delete</button>'})}).join('')+'</div></section>';
  view.innerHTML=h}
-function tripForm(tr){
- var wm=/^([A-Za-z]{3})[A-Za-z]*\.?\s+(\d{4})$/.exec(String(tr.when||'').trim()),mo=wm?wm[1].charAt(0).toUpperCase()+wm[1].slice(1).toLowerCase():'',yr=wm?wm[2]:'';
- var opts='<option value="">\u2014</option>'+MN.map(function(m){return'<option value="'+m+'"'+(m===mo?' selected':'')+'>'+m+'</option>'}).join('');
- var sw=COLORS.map(function(c){return'<label><input type="radio" name="tcol" data-tcol="'+c+'"'+(tr.c===c?' checked':'')+'><span style="--c:var('+c+')" title="'+c.slice(2)+'"></span></label>'}).join('');
- return'<div class="td"><div class="td-h"><b>Trip details</b><span>Changes save automatically \u2014 press Publish to put them on the site.</span></div><div class="fx">'+
-  '<div class="fr"><label class="fl">Trip name<input type="text" data-tn="1" maxlength="40" value="'+esc(tr.t)+'" placeholder="e.g. Spiti Valley" autocomplete="off"></label>'+
-  '<div class="fr"><label class="fl">Month<select data-tm="1">'+opts+'</select></label><label class="fl">Year<input type="number" data-ty="1" min="1990" max="2100" value="'+yr+'"></label></div></div>'+
-  '<div class="fl">Card colour<div class="sw">'+sw+'</div></div>'+
-  '<div class="prev" style="--c:var('+(tr.c||'--card')+')"><b>'+esc(tr.t||'New trip')+'</b><span>This is how the trip appears in the gallery tabs.</span></div>'+
-  '<div class="fr" style="grid-template-columns:1fr 2fr"><label class="fl">Sticker note<em>Small tag on the trip card</em><input type="text" data-tnote="1" maxlength="40" value="'+esc(tr.note||'')+'" placeholder="e.g. a very hard climb"></label>'+
-  '<label class="fl">Short description<em>Shown on the home page</em><input type="text" data-tdesc="1" value="'+esc(tr.desc||'')+'" placeholder="One line about this trip"></label></div>'+
-  '<div class="fl">Cover photo<div class="cvrow"><div style="width:220px;max-width:100%"><div class="it cov" data-dz="cover|'+S.trip+'"><div class="im"><img src="'+esc(srcOf(S.covers[S.trip],700))+'" alt="" loading="lazy"></div></div></div><div><p>Shown on this trip\u2019s card at the top of the gallery and on the home page. Click <b>\u2605 Cover</b> on any photo below to use it, or upload a different image.</p>'+up('cover|'+S.trip,'Upload new cover')+'</div></div></div>'+
-  '</div><div class="td-f"><span>Deleting a trip removes all its places and photos.</span><button class="btn sm r" type="button" data-a="rmtrip">Delete trip</button></div></div>'}
 function galV(){
  var tr=T().filter(function(t){return t.id===S.trip})[0],g=S.gal[S.trip],tot=0;g.places.forEach(function(p){tot+=p.photos.length});
  var h='<h2>Gallery photos</h2><p class="sub">Pick a trip, then add photos under each place. Each photo\u2019s caption shows on hover and in the viewer. Drag the trip tabs to reorder them.</p><div class="pills">'+T().map(function(t){return'<button class="pill" type="button" data-a="trip|'+t.id+'"'+(t.c?' style="--c:var('+t.c+')"':'')+' aria-pressed="'+(t.id===S.trip)+'">'+esc(t.t)+'</button>'}).join('')+'<button class="pill" type="button" data-a="addtrip" style="background:var(--green)">+ Add trip</button></div>';
- h+='<section class="box sec"><h3>'+esc(tr.t)+' <span style="font:500 .9rem var(--sans)">\u00b7 '+g.places.length+' places \u00b7 '+tot+' photos</span></h3><p class="h">Edit this trip\u2019s details below, then add photos under each place.</p>'+tripForm(tr)+
- '<div class="row" style="justify-content:space-between;margin-bottom:.4rem"><h3 style="font-size:1.5rem;margin:0">Places</h3><button class="btn sm g" type="button" data-a="addplace">+ Add place</button></div><p class="h">Newest stop is on top. The number is the stop\u2019s position in the route (1 = start). Drag \u283f to reorder \u2014 numbers update by themselves.</p>';
+ h+='<section class="box sec"><h3>'+esc(tr.t)+' <span style="font:500 .9rem var(--sans)">\u00b7 '+g.places.length+' places \u00b7 '+tot+' photos</span></h3><p class="h">Newest stop is on top. The number is the stop\u2019s position in the route (1 = start). Drag \u283f to reorder \u2014 numbers update by themselves.</p>'+
+ '<div class="ph"><input type="text" data-tn="1" value="'+esc(tr.t)+'" aria-label="Trip name" placeholder="Trip name"><input type="text" data-tw="1" value="'+esc(tr.when)+'" aria-label="When" placeholder="e.g. Mar 2026"><button class="btn sm r" type="button" data-a="rmtrip">Delete trip</button></div>'+
+ '<div class="ccol"><b>Card colour</b><div class="sw sm">'+COLORS.map(function(c){return'<label><input type="radio" name="tcol" data-tcol="'+c+'"'+(tr.c===c?' checked':'')+'><span style="--c:var('+c+')" title="'+c.slice(2)+'"></span></label>'}).join('')+'</div></div>'+
+ '<div class="ph"><input type="text" data-tnote="1" value="'+esc(tr.note||'')+'" aria-label="Sticker note" placeholder="Sticker note, e.g. a very hard climb" style="width:260px;max-width:100%"><input type="text" data-tdesc="1" value="'+esc(tr.desc||'')+'" aria-label="Short description" placeholder="Short description for the home page" style="flex:1;min-width:240px"></div>'+
+ '<div class="row" style="margin:1rem 0;align-items:flex-start;gap:1rem"><div style="width:200px"><div class="it cov" data-dz="cover|'+S.trip+'"><div class="im"><img src="'+esc(srcOf(S.covers[S.trip],700))+'" alt="" loading="lazy"></div></div></div><div><b>Trip cover</b><p class="h" style="margin:.3rem 0 .7rem;max-width:30rem">Shown on this trip\u2019s card at the top of the gallery and on the home page. Click <b>\u2605 Cover</b> on any photo below to use it, or upload a different image.</p>'+up('cover|'+S.trip,'Upload new cover')+'</div></div>'+
+ '<button class="btn sm g" type="button" data-a="addplace">+ Add place</button>';
  g.places.map(function(p,pi){return pi}).reverse().forEach(function(pi){var p=g.places[pi];
   h+='<div class="place" data-pi="'+pi+'"><div class="ph"><span class="grip" title="Drag to reorder" aria-label="Drag to reorder">\u283f</span><span class="num">'+(pi+1)+'</span><input type="text" data-pn="'+pi+'" value="'+esc(p.n)+'" aria-label="Place name" placeholder="Place name"><input type="text" data-ps="'+pi+'" value="'+esc(p.s)+'" aria-label="State" placeholder="State" list="instates" autocomplete="off"><input type="number" step="any" data-plat="'+pi+'" value="'+(p.lat==null?'':p.lat)+'" aria-label="Latitude" placeholder="Lat"><input type="number" step="any" data-plng="'+pi+'" value="'+(p.lng==null?'':p.lng)+'" aria-label="Longitude" placeholder="Lng"><button class="btn sm b" data-a="find|'+pi+'" type="button">\ud83d\udccd Find on map</button><span style="font-size:.75rem;font-weight:700;color:'+(p.lat==null||p.lng==null?'#b00':'#2a7a2a')+'">'+(p.lat==null||p.lng==null?'no map pin yet':'on map \u2713')+'</span>'+(p.lat==null||p.lng==null?'':'<a href="https://www.google.com/maps?q='+p.lat+','+p.lng+'" target="_blank" rel="noopener" style="font-size:.75rem;font-weight:700">check \u2197</a>')+'<button class="btn sm r" data-a="rmplace|'+pi+'" type="button">Delete place</button></div>'+
   '<div class="ph"><input type="text" data-pdrv="'+pi+'" value="'+esc(p.drive||'')+'" aria-label="Google Drive folder link for this place" placeholder="Drive folder link for '+esc(p.n||'this place')+' (used by the place\u2019s Download button)" style="flex:1;min-width:260px;border-color:'+(p.drive?'#2a7a2a':'var(--ink)')+'"></div>'+
@@ -268,6 +254,20 @@ function fromData(d){var D=defaults(),S2={hero:{src:d.hero||D.hero.src},covers:{
   (g.photos||[]).forEach(function(x){var pl=S2.gal[t.id].places[x[0]];if(pl)pl.photos.push({src:x[1],cap:x[2]||'',drive:x[3]||''})})});
  S2.trip=S2.trips[0].id;return S2}
 
+/* ---------- Styled confirm pop-up (replaces the browser's confirm box) ---------- */
+var CFR=null;
+function cfDone(v){var m=$('cf');if(m)m.hidden=true;var r=CFR;CFR=null;if(r)r(v)}
+function askConfirm(o){return new Promise(function(res){var m=$('cf');
+ if(!m){m=document.createElement('div');m.className='mo';m.id='cf';m.hidden=true;
+  m.innerHTML='<div class="mf box cfb" role="alertdialog" aria-modal="true" aria-labelledby="cft" aria-describedby="cfm"><span class="tape"></span><h2 id="cft"></h2><p class="lead" id="cfm"></p><div class="prev" id="cfp" hidden></div><div class="fa"><button class="btn" type="button" id="cfn">Cancel</button><button class="btn r" type="button" id="cfy"></button></div></div>';
+  document.body.appendChild(m);
+  m.addEventListener('mousedown',function(e){if(e.target===m)cfDone(false)});
+  $('cfn').onclick=function(){cfDone(false)};$('cfy').onclick=function(){cfDone(true)}}
+ $('cft').textContent=o.title;$('cfm').textContent=o.msg||'';
+ var p=$('cfp');if(o.prev){p.innerHTML=o.prev;p.style.setProperty('--c',o.color||'var(--card)');p.hidden=false}else p.hidden=true;
+ $('cfy').textContent=o.ok||'Delete';
+ if(CFR)CFR(false);CFR=res;m.hidden=false;setTimeout(function(){$('cfn').focus()},30)})}
+addEventListener('keydown',function(e){if(e.key==='Escape'&&$('cf')&&!$('cf').hidden){e.stopPropagation();cfDone(false)}},true);
 /* ---------- Find a place's coordinates (OpenStreetMap Nominatim) ---------- */
 var GEN=/\s+(jyotirling[a]?|temple|mandir|fort|beach|lake|talav|dam|cave|waterfall|falls|point|village|peak|viewpoint)$/i,GP=null,gmSeq=0;
 function parseCoords(t){t=String(t||'');try{t=t.replace(/&amp;/g,'&')}catch(e){}
@@ -388,10 +388,8 @@ function setUp(kind,files,done){
  else if(k==='roll'){addFiles(files,'camera-roll',1800).then(function(r){r.forEach(function(it){S.roll.push(it)});if(r.length){save();softRender();toast('Added '+r.length+' photo'+(r.length>1?'s':''))}})}
  else if(k==='gal'){var pi=+a[1],tid=S.trip;addFiles(files,'gallery/'+tid,2000).then(function(r){var p=S.gal[tid].places[pi];if(!p)return;r.forEach(function(it){p.photos.push(it)});if(r.length){save();softRender();toast('Added '+r.length+' photo'+(r.length>1?'s':'')+' to '+p.n)}})}
 }
-document.addEventListener('change',function(e){var f=e.target;if(S&&f.dataset&&f.dataset.tcol){var tc=T().filter(function(x){return x.id===S.trip})[0];if(tc){tc.c=f.dataset.tcol;save();var v='var('+tc.c+')',pl2=document.querySelector('.pill[aria-pressed="true"]'),pv2=document.querySelector('.td .prev');if(pl2)pl2.style.setProperty('--c',v);if(pv2)pv2.style.setProperty('--c',v)}return}if(S&&f.dataset&&(f.dataset.ps!=null||f.dataset.pn!=null)){autoFind(S.trip,+(f.dataset.ps!=null?f.dataset.ps:f.dataset.pn),f)}if(f.dataset&&f.dataset.up&&f.files&&f.files.length){setUp(f.dataset.up,f.files);f.value=''}});
+document.addEventListener('change',function(e){var f=e.target;if(S&&f.dataset&&f.dataset.tcol){var tc=T().filter(function(x){return x.id===S.trip})[0];if(tc){tc.c=f.dataset.tcol;save();softRender();toast('Card colour updated')}return}if(S&&f.dataset&&(f.dataset.ps!=null||f.dataset.pn!=null)){autoFind(S.trip,+(f.dataset.ps!=null?f.dataset.ps:f.dataset.pn),f)}if(f.dataset&&f.dataset.up&&f.files&&f.files.length){setUp(f.dataset.up,f.files);f.value=''}});
 document.addEventListener('input',function(e){var t=e.target,d=t.dataset||{};if(!S)return;
- if(d.tn!=null){var pl3=document.querySelector('.pill[aria-pressed="true"]'),pv3=document.querySelector('.td .prev b');if(pl3)pl3.textContent=t.value;if(pv3)pv3.textContent=t.value||'New trip'}
- if(d.tm!=null||d.ty!=null){var bx=t.closest('.td'),tr4=T().filter(function(x){return x.id===S.trip})[0];if(bx&&tr4){var mm=bx.querySelector('[data-tm]').value,yy=bx.querySelector('[data-ty]').value.trim();tr4.when=mm&&yy?mm+' '+yy:(mm||yy);save()}return}
  if(d.cap){var a=d.cap.split('|'),k=a[0];if(k==='pin')S.pinned[+a[1]].cap=t.value;else if(k==='roll')S.roll[+a[1]].cap=t.value;else if(k==='ph')S.gal[S.trip].places[+a[1]].photos[+a[2]].cap=t.value;save()}
  else if(d.tn!=null){T().filter(function(x){return x.id===S.trip})[0].t=t.value;save()}else if(d.tw!=null){T().filter(function(x){return x.id===S.trip})[0].when=t.value;save()}
  else if(d.tnote!=null){T().filter(function(x){return x.id===S.trip})[0].note=t.value;save()}else if(d.tdesc!=null){T().filter(function(x){return x.id===S.trip})[0].desc=t.value;save()}
@@ -404,21 +402,22 @@ function mv(arr,i,d){var j=i+d;if(j<0||j>=arr.length)return;var x=arr.splice(i,1
 document.addEventListener('click',function(e){
  var tb=e.target.closest('.tab');if(tb){S.tab=tb.dataset.t;saveUI();render();return}
  if(e.target.closest('#exp,#pubq')){publish(e.target.closest('#exp,#pubq'));return}
- if(e.target.id==='rst'){if(confirm('Discard your unpublished changes and reload what is live?')){idbSet('state',null).catch(function(){}).then(function(){start()})}return}
+ if(e.target.id==='rst'){askConfirm({title:'Discard changes?',msg:'Your unpublished changes will be thrown away and what is live on the site will be reloaded.',ok:'Discard'}).then(function(ok){if(ok)idbSet('state',null).catch(function(){}).then(function(){start()})});return}
  if(e.target.id==='out'){sb.auth.signOut().then(function(){location.reload()});return}
  var b=e.target.closest('[data-a]');if(!b)return;var a=b.dataset.a.split('|'),k=a[0],g=S.gal[S.trip];
  if(k==='trip'){S.trip=a[1];saveUI();render();return}
  if(k==='addtrip'){openTrip();return}
- if(k==='rmtrip'){if(S.trips.length<2){toast('Keep at least one trip');return}var tr0=T().filter(function(x){return x.id===S.trip})[0];if(!confirm('Delete the trip \u201c'+tr0.t+'\u201d with all its places and photos?'))return;
-  S.trips=S.trips.filter(function(x){return x.id!==S.trip});delete S.gal[S.trip];delete S.covers[S.trip];S.trip=S.trips[0].id;save();render();return}
+ if(k==='rmtrip'){if(S.trips.length<2){toast('Keep at least one trip');return}var tr0=T().filter(function(x){return x.id===S.trip})[0],tid0=S.trip,gp=S.gal[tid0].places,np=gp.length,nph=0;gp.forEach(function(q){nph+=q.photos.length});
+  askConfirm({title:'Delete this trip?',msg:'The trip, all its places and photos will be removed from the site the next time you publish.',ok:'Delete trip',prev:'<b>'+esc(tr0.t)+'</b><span>'+np+' place'+(np===1?'':'s')+' \u00b7 '+nph+' photo'+(nph===1?'':'s')+'</span>',color:tr0.c?'var('+tr0.c+')':null}).then(function(ok){if(!ok)return;
+   S.trips=S.trips.filter(function(x){return x.id!==tid0});delete S.gal[tid0];delete S.covers[tid0];S.trip=S.trips[0].id;save();render()});return}
  if(k==='cover'){var ph0=g.places[+a[1]].photos[+a[2]];S.covers[S.trip]={src:ph0.src,blob:ph0.blob};save();softRender();toast('Cover updated');return}
  if(k==='find'){openGm(S.trip,+a[1]);return}
  if(k==='mvroll')mv(S.roll,+a[1],+a[2]);
- else if(k==='rmroll'){if(!confirm('Delete this photo from the camera roll?'))return;S.roll.splice(+a[1],1)}
+ else if(k==='rmroll'){var rp=S.roll[+a[1]];askConfirm({title:'Delete this photo?',msg:'It will be removed from the camera roll.',ok:'Delete photo',prev:rp?'<img src="'+esc(srcOf(rp,200))+'" alt=""><span>'+esc(rp.cap||'No caption')+'</span>':''}).then(function(ok){if(ok){S.roll.splice(+a[1],1);save();softRender()}});return}
  else if(k==='mvph')mv(g.places[+a[1]].photos,+a[2],+a[3]);
- else if(k==='rmph'){if(!confirm('Delete this photo?'))return;g.places[+a[1]].photos.splice(+a[2],1)}
+ else if(k==='rmph'){var dp=g.places[+a[1]].photos[+a[2]];askConfirm({title:'Delete this photo?',msg:'It will be removed from \u201c'+g.places[+a[1]].n+'\u201d.',ok:'Delete photo',prev:dp?'<img src="'+esc(srcOf(dp,200))+'" alt=""><span>'+esc(dp.cap||'No caption')+'</span>':''}).then(function(ok){if(ok){g.places[+a[1]].photos.splice(+a[2],1);save();softRender()}});return}
  else if(k==='mvplace')mv(g.places,+a[1],+a[2]);
- else if(k==='rmplace'){var p=g.places[+a[1]];if(!confirm('Delete \u201c'+p.n+'\u201d and its '+p.photos.length+' photo(s)?'))return;g.places.splice(+a[1],1)}
+ else if(k==='rmplace'){var p=g.places[+a[1]],npp=p.photos.length;askConfirm({title:'Delete this place?',msg:'The place and its photos will be removed from this trip.',ok:'Delete place',prev:'<b>'+esc(p.n||'Untitled place')+'</b><span>'+npp+' photo'+(npp===1?'':'s')+'</span>'}).then(function(ok){if(ok){g.places.splice(+a[1],1);save();softRender()}});return}
  else if(k==='addplace'){var last=g.places[g.places.length-1];g.places.push({n:'New place',s:'',photos:[]})}
  save();softRender();
  if(k==='addplace'){var f=document.querySelector('.place input[data-pn]');if(f){f.focus();f.select();f.scrollIntoView({block:'nearest',behavior:'smooth'})}}});
