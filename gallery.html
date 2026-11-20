@@ -853,7 +853,7 @@ function __start(){
  renderTabs();
  var gTot=0;Object.keys(GAL).forEach(function(k){gTot+=GAL[k].photos.length});
 
- var qs=new URLSearchParams(location.search),q=qs.get('trip')||'';selectTrip(q==='all'||GAL[q]?q:TRIPS[0].id,qs.get('place'));
+ var qs=new URLSearchParams(location.search),q=qs.get('trip')||'';selectTrip(GAL[q]?q:'all',qs.get('place'));
 
 
  var hd=$('hd');function hs(){hd.classList.toggle('sc',scrollY>20)}hs();addEventListener('scroll',hs,{passive:true});
