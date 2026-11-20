@@ -64,8 +64,10 @@ body.drg,body.drg *{cursor:grabbing!important;-webkit-user-select:none;user-sele
 .gr b{display:block;font-size:.95rem}.gr small{display:block;opacity:.75;font-size:.78rem;margin-top:.15rem}
 .gr a{font-weight:700;font-size:.75rem}
 .pills{display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:1.2rem}
-.pill{cursor:pointer;padding:.45rem 1rem;border:2px solid var(--ink);border-radius:999px;background:var(--card);font-weight:700;font-size:.85rem}
-.pill[aria-pressed=true]{background:var(--yellow);box-shadow:3px 3px 0 var(--ink)}
+.pill{cursor:pointer;padding:.45rem 1rem;border:2px solid var(--ink);border-radius:999px;background:var(--c,var(--card));font-weight:700;font-size:.85rem}
+.pill[aria-pressed=true]{background:var(--c,var(--yellow));box-shadow:3px 3px 0 var(--ink);transform:translateY(-2px)}
+.sw.sm{gap:.45rem}.sw.sm span{width:30px;height:30px;border-width:2px}.sw.sm input:checked+span{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--ink)}
+.ccol{display:flex;align-items:center;gap:.8rem;flex-wrap:wrap;margin:.2rem 0 .8rem}.ccol b{font-size:.85rem}
 .steps{line-height:1.7}.steps code{background:var(--yellow);padding:.1rem .4rem;border:1.5px solid var(--ink);border-radius:4px;font-size:.85em}
 .stat{display:flex;gap:.6rem;flex-wrap:wrap;margin:1rem 0}
 .stat span{padding:.35rem .8rem;border:2px solid var(--ink);border-radius:999px;background:var(--green);font-weight:700;font-size:.85rem}
@@ -212,9 +214,10 @@ function homeV(){
  view.innerHTML=h}
 function galV(){
  var tr=T().filter(function(t){return t.id===S.trip})[0],g=S.gal[S.trip],tot=0;g.places.forEach(function(p){tot+=p.photos.length});
- var h='<h2>Gallery photos</h2><p class="sub">Pick a trip, then add photos under each place. Each photo\u2019s caption shows on hover and in the viewer. Drag the trip tabs to reorder them.</p><div class="pills">'+T().map(function(t){return'<button class="pill" type="button" data-a="trip|'+t.id+'" aria-pressed="'+(t.id===S.trip)+'">'+esc(t.t)+'</button>'}).join('')+'<button class="pill" type="button" data-a="addtrip" style="background:var(--green)">+ Add trip</button></div>';
+ var h='<h2>Gallery photos</h2><p class="sub">Pick a trip, then add photos under each place. Each photo\u2019s caption shows on hover and in the viewer. Drag the trip tabs to reorder them.</p><div class="pills">'+T().map(function(t){return'<button class="pill" type="button" data-a="trip|'+t.id+'"'+(t.c?' style="--c:var('+t.c+')"':'')+' aria-pressed="'+(t.id===S.trip)+'">'+esc(t.t)+'</button>'}).join('')+'<button class="pill" type="button" data-a="addtrip" style="background:var(--green)">+ Add trip</button></div>';
  h+='<section class="box sec"><h3>'+esc(tr.t)+' <span style="font:500 .9rem var(--sans)">\u00b7 '+g.places.length+' places \u00b7 '+tot+' photos</span></h3><p class="h">Newest stop is on top. The number is the stop\u2019s position in the route (1 = start). Drag \u283f to reorder \u2014 numbers update by themselves.</p>'+
  '<div class="ph"><input type="text" data-tn="1" value="'+esc(tr.t)+'" aria-label="Trip name" placeholder="Trip name"><input type="text" data-tw="1" value="'+esc(tr.when)+'" aria-label="When" placeholder="e.g. Mar 2026"><button class="btn sm r" type="button" data-a="rmtrip">Delete trip</button></div>'+
+ '<div class="ccol"><b>Card colour</b><div class="sw sm">'+COLORS.map(function(c){return'<label><input type="radio" name="tcol" data-tcol="'+c+'"'+(tr.c===c?' checked':'')+'><span style="--c:var('+c+')" title="'+c.slice(2)+'"></span></label>'}).join('')+'</div></div>'+
  '<div class="ph"><input type="text" data-tnote="1" value="'+esc(tr.note||'')+'" aria-label="Sticker note" placeholder="Sticker note, e.g. a very hard climb" style="width:260px;max-width:100%"><input type="text" data-tdesc="1" value="'+esc(tr.desc||'')+'" aria-label="Short description" placeholder="Short description for the home page" style="flex:1;min-width:240px"></div>'+
  '<div class="row" style="margin:1rem 0;align-items:flex-start;gap:1rem"><div style="width:200px"><div class="it cov" data-dz="cover|'+S.trip+'"><div class="im"><img src="'+esc(srcOf(S.covers[S.trip],700))+'" alt="" loading="lazy"></div></div></div><div><b>Trip cover</b><p class="h" style="margin:.3rem 0 .7rem;max-width:30rem">Shown on this trip\u2019s card at the top of the gallery and on the home page. Click <b>\u2605 Cover</b> on any photo below to use it, or upload a different image.</p>'+up('cover|'+S.trip,'Upload new cover')+'</div></div>'+
  '<button class="btn sm g" type="button" data-a="addplace">+ Add place</button>';
@@ -370,7 +373,7 @@ function setUp(kind,files,done){
  else if(k==='roll'){addFiles(files,'camera-roll',1800).then(function(r){r.forEach(function(it){S.roll.push(it)});if(r.length){save();softRender();toast('Added '+r.length+' photo'+(r.length>1?'s':''))}})}
  else if(k==='gal'){var pi=+a[1],tid=S.trip;addFiles(files,'gallery/'+tid,2000).then(function(r){var p=S.gal[tid].places[pi];if(!p)return;r.forEach(function(it){p.photos.push(it)});if(r.length){save();softRender();toast('Added '+r.length+' photo'+(r.length>1?'s':'')+' to '+p.n)}})}
 }
-document.addEventListener('change',function(e){var f=e.target;if(S&&f.dataset&&(f.dataset.ps!=null||f.dataset.pn!=null)){autoFind(S.trip,+(f.dataset.ps!=null?f.dataset.ps:f.dataset.pn),f)}if(f.dataset&&f.dataset.up&&f.files&&f.files.length){setUp(f.dataset.up,f.files);f.value=''}});
+document.addEventListener('change',function(e){var f=e.target;if(S&&f.dataset&&f.dataset.tcol){var tc=T().filter(function(x){return x.id===S.trip})[0];if(tc){tc.c=f.dataset.tcol;save();softRender();toast('Card colour updated')}return}if(S&&f.dataset&&(f.dataset.ps!=null||f.dataset.pn!=null)){autoFind(S.trip,+(f.dataset.ps!=null?f.dataset.ps:f.dataset.pn),f)}if(f.dataset&&f.dataset.up&&f.files&&f.files.length){setUp(f.dataset.up,f.files);f.value=''}});
 document.addEventListener('input',function(e){var t=e.target,d=t.dataset||{};if(!S)return;
  if(d.cap){var a=d.cap.split('|'),k=a[0];if(k==='pin')S.pinned[+a[1]].cap=t.value;else if(k==='roll')S.roll[+a[1]].cap=t.value;else if(k==='ph')S.gal[S.trip].places[+a[1]].photos[+a[2]].cap=t.value;save()}
  else if(d.tn!=null){T().filter(function(x){return x.id===S.trip})[0].t=t.value;save()}else if(d.tw!=null){T().filter(function(x){return x.id===S.trip})[0].when=t.value;save()}
