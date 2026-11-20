@@ -201,7 +201,7 @@ function addFiles(files,folder,max){var list=[].filter.call(files,function(f){re
 
 /* ---------- Views ---------- */
 var view=$('view');
-function tile(it,o){return'<div class="it'+(o.cov?' cov':'')+'"'+(o.dz?' data-dz="'+o.dz+'"':'')+'><div class="im"><img src="'+esc(srcOf(it))+'" alt="" loading="lazy"></div>'+(o.cap!=null?'<input type="text" data-cap="'+o.cap+'" value="'+esc(it.cap)+'" placeholder="Caption" aria-label="Caption">':'')+'<div class="acts">'+(o.acts||'')+'</div></div>'}
+function tile(it,o){return'<div class="it'+(o.cov?' cov':'')+'"'+(o.dz?' data-dz="'+o.dz+'"':'')+'><div class="im"><img src="'+esc(srcOf(it))+'" alt="" loading="lazy"></div>'+(o.cap!=null?'<input type="text" data-cap="'+o.cap+'" value="'+esc(it.cap)+'" placeholder="Caption" aria-label="Caption">':'')+(o.drv?'<input type="text" data-drv="'+o.drv+'" value="'+esc(it.drive||'')+'" placeholder="Drive link (original photo)" aria-label="Google Drive link for download" style="border-color:'+(it.drive?'#2a7a2a':'var(--ink)')+'">':'')+'<div class="acts">'+(o.acts||'')+'</div></div>'}
 function up(attr,label,multi){return'<label class="btn sm y">'+label+'<input type="file" accept="image/*" '+(multi?'multiple ':'')+'data-up="'+attr+'"></label>'}
 function homeV(){
  var h='<h2>Home page photos</h2><p class="sub">Everything on <b>index.html</b> that uses a picture. Photos are resized in your browser (max 1800px) before they\u2019re saved.</p>';
@@ -220,8 +220,9 @@ function galV(){
  '<button class="btn sm g" type="button" data-a="addplace">+ Add place</button>';
  g.places.map(function(p,pi){return pi}).reverse().forEach(function(pi){var p=g.places[pi];
   h+='<div class="place" data-pi="'+pi+'"><div class="ph"><span class="grip" title="Drag to reorder" aria-label="Drag to reorder">\u283f</span><span class="num">'+(pi+1)+'</span><input type="text" data-pn="'+pi+'" value="'+esc(p.n)+'" aria-label="Place name" placeholder="Place name"><input type="text" data-ps="'+pi+'" value="'+esc(p.s)+'" aria-label="State" placeholder="State" list="instates" autocomplete="off"><input type="number" step="any" data-plat="'+pi+'" value="'+(p.lat==null?'':p.lat)+'" aria-label="Latitude" placeholder="Lat"><input type="number" step="any" data-plng="'+pi+'" value="'+(p.lng==null?'':p.lng)+'" aria-label="Longitude" placeholder="Lng"><button class="btn sm b" data-a="find|'+pi+'" type="button">\ud83d\udccd Find on map</button><span style="font-size:.75rem;font-weight:700;color:'+(p.lat==null||p.lng==null?'#b00':'#2a7a2a')+'">'+(p.lat==null||p.lng==null?'no map pin yet':'on map \u2713')+'</span>'+(p.lat==null||p.lng==null?'':'<a href="https://www.google.com/maps?q='+p.lat+','+p.lng+'" target="_blank" rel="noopener" style="font-size:.75rem;font-weight:700">check \u2197</a>')+'<button class="btn sm r" data-a="rmplace|'+pi+'" type="button">Delete place</button></div>'+
+  '<div class="ph"><input type="text" data-pdrv="'+pi+'" value="'+esc(p.drive||'')+'" aria-label="Google Drive folder link for this place" placeholder="Drive folder link for '+esc(p.n||'this place')+' (used by the place\u2019s Download button)" style="flex:1;min-width:260px;border-color:'+(p.drive?'#2a7a2a':'var(--ink)')+'"></div>'+
   '<div class="dz" data-dz="gal|'+pi+'">drop photos for '+esc(p.n||'this place')+'<small>'+p.photos.length+' photo'+(p.photos.length===1?'':'s')+' so far</small></div><div class="row" style="margin-bottom:1rem">'+up('gal|'+pi,'+ Add photos',1)+'</div>'+
-  '<div class="grid">'+p.photos.map(function(ph,i){return tile(ph,{cap:'ph|'+pi+'|'+i,acts:'<button class="btn sm'+(S.covers[S.trip]&&S.covers[S.trip].src===ph.src?' y':'')+'" data-a="cover|'+pi+'|'+i+'" type="button">\u2605 Cover</button><button class="btn sm" data-a="mvph|'+pi+'|'+i+'|-1" type="button" aria-label="Move earlier">\u25c0</button><button class="btn sm" data-a="mvph|'+pi+'|'+i+'|1" type="button" aria-label="Move later">\u25b6</button><button class="btn sm r" data-a="rmph|'+pi+'|'+i+'" type="button">Delete</button>'})}).join('')+'</div></div>'});
+  '<div class="grid">'+p.photos.map(function(ph,i){return tile(ph,{cap:'ph|'+pi+'|'+i,drv:'ph|'+pi+'|'+i,acts:'<button class="btn sm'+(S.covers[S.trip]&&S.covers[S.trip].src===ph.src?' y':'')+'" data-a="cover|'+pi+'|'+i+'" type="button">\u2605 Cover</button><button class="btn sm" data-a="mvph|'+pi+'|'+i+'|-1" type="button" aria-label="Move earlier">\u25c0</button><button class="btn sm" data-a="mvph|'+pi+'|'+i+'|1" type="button" aria-label="Move later">\u25b6</button><button class="btn sm r" data-a="rmph|'+pi+'|'+i+'" type="button">Delete</button>'})}).join('')+'</div></div>'});
  h+='</section>';view.innerHTML=h}
 function counts(){var n=0,b=0;function c(it){n++;if(/\/storage\/v1\//.test(it.src))b++}
  c(S.hero);S.pinned.forEach(c);S.roll.forEach(c);T().forEach(function(t){c(S.covers[t.id]);S.gal[t.id].places.forEach(function(p){p.photos.forEach(c)})});return{n:n,b:b}}
@@ -237,16 +238,16 @@ function softRender(){var y=scrollY;(S.tab==='home'?homeV:S.tab==='gallery'?galV
 /* ---------- Export ---------- */
 function buildData(){var d={hero:S.hero.src,pinned:S.pinned.map(function(p){return{src:p.src,cap:p.cap}}),roll:S.roll.map(function(p){return{src:p.src,cap:p.cap}}),covers:{},gal:{},trips:S.trips.map(function(t){return{id:t.id,t:t.t,when:t.when,c:t.c||null,note:t.note||'',desc:t.desc||''}})};
  T().forEach(function(t){d.covers[t.id]=S.covers[t.id].src;var pl=S.gal[t.id].places,ph=[];
-  pl.forEach(function(p,pi){p.photos.forEach(function(x){ph.push([pi,x.src,x.cap])})});
-  d.gal[t.id]={places:pl.map(function(p){return{n:p.n,s:p.s,lat:p.lat==null?null:p.lat,lng:p.lng==null?null:p.lng}}),photos:ph}});return d}
+  pl.forEach(function(p,pi){p.photos.forEach(function(x){ph.push(x.drive?[pi,x.src,x.cap,x.drive]:[pi,x.src,x.cap])})});
+  d.gal[t.id]={places:pl.map(function(p){return{n:p.n,s:p.s,drive:p.drive||'',lat:p.lat==null?null:p.lat,lng:p.lng==null?null:p.lng}}),photos:ph}});return d}
 function publish(btn){if(btn)btn.disabled=true;toast('Publishing\u2026');
  sb.from('site_data').upsert({id:1,data:buildData(),updated_at:new Date().toISOString()}).then(function(r){if(r.error)throw r.error;S.dirty=false;idbSet('state',S).catch(function(){});updDirty();if(S.tab==='export')softRender();toast('Published \u2014 your site is updated')})
   .catch(function(e){toast('Publish failed: '+(e&&e.message||e))}).then(function(){if(btn)btn.disabled=false})}
 function fromData(d){var D=defaults(),S2={hero:{src:d.hero||D.hero.src},covers:{},pinned:[],roll:(d.roll||[]).map(function(p){return{src:p.src,cap:p.cap||''}}),gal:{},trips:d.trips&&d.trips.length?d.trips:D.trips,tab:'home',dirty:false};
  for(var i=0;i<4;i++){var p=(d.pinned||[])[i]||D.pinned[i];S2.pinned.push({src:p.src,cap:p.cap||''})}
  S2.trips.forEach(function(t){S2.covers[t.id]={src:(d.covers&&d.covers[t.id])||D.covers[t.id]&&D.covers[t.id].src||'photo-1464278533981-50106e6176b1'};
-  var g=d.gal&&d.gal[t.id]||{places:[{n:'New place',s:''}],photos:[]};S2.gal[t.id]={places:g.places.map(function(p){var c=GC[t.id+'|'+p.n]||[null,null];return{n:p.n,s:p.s,lat:p.lat!=null?p.lat:c[0],lng:p.lng!=null?p.lng:c[1],photos:[]}})};
-  (g.photos||[]).forEach(function(x){var pl=S2.gal[t.id].places[x[0]];if(pl)pl.photos.push({src:x[1],cap:x[2]||''})})});
+  var g=d.gal&&d.gal[t.id]||{places:[{n:'New place',s:''}],photos:[]};S2.gal[t.id]={places:g.places.map(function(p){var c=GC[t.id+'|'+p.n]||[null,null];return{n:p.n,s:p.s,drive:p.drive||'',lat:p.lat!=null?p.lat:c[0],lng:p.lng!=null?p.lng:c[1],photos:[]}})};
+  (g.photos||[]).forEach(function(x){var pl=S2.gal[t.id].places[x[0]];if(pl)pl.photos.push({src:x[1],cap:x[2]||'',drive:x[3]||''})})});
  S2.trip=S2.trips[0].id;return S2}
 
 /* ---------- Find a place's coordinates (OpenStreetMap Nominatim) ---------- */
@@ -364,6 +365,8 @@ document.addEventListener('input',function(e){var t=e.target,d=t.dataset||{};if(
  if(d.cap){var a=d.cap.split('|'),k=a[0];if(k==='pin')S.pinned[+a[1]].cap=t.value;else if(k==='roll')S.roll[+a[1]].cap=t.value;else if(k==='ph')S.gal[S.trip].places[+a[1]].photos[+a[2]].cap=t.value;save()}
  else if(d.tn!=null){T().filter(function(x){return x.id===S.trip})[0].t=t.value;save()}else if(d.tw!=null){T().filter(function(x){return x.id===S.trip})[0].when=t.value;save()}
  else if(d.tnote!=null){T().filter(function(x){return x.id===S.trip})[0].note=t.value;save()}else if(d.tdesc!=null){T().filter(function(x){return x.id===S.trip})[0].desc=t.value;save()}
+ else if(d.drv!=null){var dq=d.drv.split('|');S.gal[S.trip].places[+dq[1]].photos[+dq[2]].drive=t.value.trim();t.style.borderColor=t.value.trim()?'#2a7a2a':'var(--ink)';save()}
+ else if(d.pdrv!=null){S.gal[S.trip].places[+d.pdrv].drive=t.value.trim();t.style.borderColor=t.value.trim()?'#2a7a2a':'var(--ink)';save()}
  else if(d.pn!=null){S.gal[S.trip].places[+d.pn].n=t.value;save()}else if(d.ps!=null){S.gal[S.trip].places[+d.ps].s=t.value;save()}
  else if((d.plat!=null||d.plng!=null)&&parseCoords(t.value)&&/[,;\s@=]/.test(t.value.trim())){var pc=parseCoords(t.value),q0=S.gal[S.trip].places[+(d.plat!=null?d.plat:d.plng)];q0.lat=pc[0];q0.lng=pc[1];setAuto(q0,false);save();softRender();toast('Coordinates set')}
  else if(d.plat!=null||d.plng!=null){var pp=S.gal[S.trip].places[+(d.plat!=null?d.plat:d.plng)],v=parseFloat(t.value);if(d.plat!=null)pp.lat=isNaN(v)?null:v;else pp.lng=isNaN(v)?null:v;setAuto(pp,false);save()}});

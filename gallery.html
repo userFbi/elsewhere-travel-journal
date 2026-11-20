@@ -769,7 +769,10 @@ function __start(){
  function fileName(p,ext){return gSlug(p.t.t)+'-'+gSlug(p.place)+'-'+(p.i+1)+'.'+ext}
  function extOf(b,u){var m=(b.type||'').split('/')[1];if(m)return m.replace('jpeg','jpg').split('+')[0];var x=(u.split('?')[0].match(/\.(\w{3,4})$/)||[])[1];return x||'jpg'}
  function saveBlob(b,name){var a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=name;document.body.appendChild(a);a.click();setTimeout(function(){URL.revokeObjectURL(a.href);a.remove()},1500)}
+ // Google Drive: a pasted file link becomes a direct-download link
+ function driveFile(u){var m=/\/d\/([\w-]+)/.exec(u)||/[?&]id=([\w-]+)/.exec(u);return m?'https://drive.google.com/uc?export=download&id='+m[1]:u}
  function dlOne(p,btn){
+  if(p.drive){window.open(driveFile(p.drive),'_blank','noopener');if(btn){btn.classList.add('ok');setTimeout(function(){btn.classList.remove('ok')},1400)}gmsg('Downloading \u201c'+p.c+'\u201d from Google Drive');return Promise.resolve()}
   var u=gsrc(p.id,2000);
   return fetch(u).then(function(r){if(!r.ok)throw 0;return r.blob()}).then(function(b){saveBlob(b,fileName(p,extOf(b,u)));if(btn){btn.classList.add('ok');setTimeout(function(){btn.classList.remove('ok')},1400)}gmsg('Saved \u201c'+p.c+'\u201d')})
   .catch(function(){window.open(u,'_blank','noopener');gmsg('Opened the full image in a new tab \u2014 long-press or right-click to save it.')});
@@ -790,8 +793,8 @@ function __start(){
  function buildView(id){
   var map={},places=[],trips=[];
   (id==='all'?TRIPS:TRIPS.filter(function(x){return x.id===id})).forEach(function(t){var g=GAL[t.id];if(!g)return;trips.push(t);
-   g.places.forEach(function(p){var key=p.n+'|'+p.s;if(!map[key]){map[key]={n:p.n,s:p.s,photos:[]};places.push(map[key])}});
-   g.photos.forEach(function(p,i){var pl=g.places[p[0]];map[pl.n+'|'+pl.s].photos.push({id:p[1],c:p[2],place:pl.n,t:t,i:i})})});
+   g.places.forEach(function(p){var key=p.n+'|'+p.s;if(!map[key]){map[key]={n:p.n,s:p.s,drive:'',photos:[]};places.push(map[key])}if(p.drive&&!map[key].drive)map[key].drive=p.drive;});
+   g.photos.forEach(function(p,i){var pl=g.places[p[0]];map[pl.n+'|'+pl.s].photos.push({id:p[1],c:p[2],place:pl.n,t:t,i:i,drive:p[3]||''})})});
   return{id:id,t:id==='all'?null:trips[0],title:id==='all'?'All places':trips[0].t,trips:trips,places:places}
  }
  function statesOf(v){var o={},a=[];v.places.forEach(function(p){if(!o[p.s]){o[p.s]=[];a.push(p.s)}o[p.s].push(p)});return a.map(function(k){return{s:k,list:o[k]}})}
@@ -836,7 +839,7 @@ function __start(){
  gAllB.onclick=function(){var l=[];gView.places.forEach(function(p){l=l.concat(p.photos)});dlZip(l,gView.title,gAllB)};
  $('gplaces').addEventListener('click',function(e){var b=e.target.closest('[data-p]');if(!b)return;var k=+b.dataset.p;gSel=gSel===k?-1:k;renderPlaces();renderChaps();if(gSel>=0)$('gchaps').scrollIntoView({behavior:'smooth',block:'start'})});
  $('gchaps').addEventListener('click',function(e){var d=e.target.closest('[data-d]'),o=e.target.closest('[data-o]'),z=e.target.closest('[data-z]');
-  if(d)dlOne(gList[+d.dataset.d],d);else if(o)openLb(+o.dataset.o,o);else if(z){var p=gView.places[+z.dataset.z];dlZip(p.photos,p.n,z)}});
+  if(d)dlOne(gList[+d.dataset.d],d);else if(o)openLb(+o.dataset.o,o);else if(z){var p=gView.places[+z.dataset.z];if(p.drive)window.open(p.drive,'_blank','noopener');else dlZip(p.photos,p.n,z)}});
  // lightbox
  var lb=$('lb'),lbFrom=null;
  function lbShow(){var p=gList[lbI];$('lbi').src=gsrc(p.id,1600);$('lbi').alt=p.c;$('lbc').textContent=p.c;$('lbpl').textContent=p.place+' \u00b7 '+(lbI+1)+' / '+gList.length;var m=gList.length<2;$('lbp').hidden=$('lbnx').hidden=m}
