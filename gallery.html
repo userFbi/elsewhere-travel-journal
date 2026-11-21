@@ -668,6 +668,17 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%;-webkit-tap-highlight-c
  .gplaces .gcov b{font-size:.92rem}
  .gtop{margin-bottom:.4rem}
 }
+/* ===== reactions ===== */
+.rx{display:flex;justify-content:center;gap:.6rem;flex-wrap:wrap}
+.rxb{display:inline-flex;align-items:center;gap:.4rem;padding:.5rem .9rem;border:2px solid #111;border-radius:999px;background:#f3f1ec;color:#111;font:700 1rem var(--sans);cursor:pointer;box-shadow:3px 3px 0 #111;transition:transform .15s,box-shadow .15s,background .15s}
+.rxb .e{font-size:1.3rem;line-height:1}
+.rxb:hover{transform:translateY(-2px)}
+.rxb[aria-pressed=true]{background:var(--yellow);box-shadow:1px 1px 0 #111;transform:translate(2px,2px)}
+.rxb.pop .e{animation:rxpop .35s}
+@keyframes rxpop{50%{transform:scale(1.6)}}
+.tbd{position:absolute;top:.5rem;left:.5rem;z-index:2;pointer-events:none;display:flex;gap:.35rem;flex-wrap:wrap}
+.tbd span{padding:.15rem .5rem;border:2px solid #111;border-radius:999px;background:#f3f1ec;color:#111;font:700 .78rem/1.2 var(--sans);box-shadow:2px 2px 0 #111}
+@media(max-width:700px){.rxb{padding:.45rem .8rem}}
 </style>
 </head>
 <body>
@@ -709,7 +720,7 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%;-webkit-tap-highlight-c
  <button class="lbx" id="lbx" type="button" aria-label="Close">&times;</button>
  <button class="lbn lbp" id="lbp" type="button" aria-label="Previous photo">&#9664;</button>
  <button class="lbn lbnx" id="lbnx" type="button" aria-label="Next photo">&#9654;</button>
- <figure><img id="lbi" alt=""><figcaption><div><b id="lbc"></b><small id="lbpl"></small></div><button class="cta" id="lbd" type="button">Download &#8595;</button></figcaption></figure>
+ <figure><img id="lbi" alt=""><figcaption><div><b id="lbc"></b><small id="lbpl"></small></div><button class="cta" id="lbd" type="button">Download &#8595;</button></figcaption><div class="rx" id="lbrx" role="group" aria-label="React to this photo"></div></figure>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
@@ -823,7 +834,7 @@ function __start(){
   var h=shown.length?'':'<p class="ghint">\u2191 tap a place to see its photos</p>';
   shown.forEach(function(pl){var n=v.places.indexOf(pl)+1;
    h+='<section class="chap" aria-label="'+q2(pl.n)+'"><div class="chead"><span class="cnum" aria-hidden="true">'+('0'+n).slice(-2)+'</span><h4>'+q2(pl.n)+'</h4><span class="cst">'+q2(pl.s)+'</span>'+(pl.photos.length?'<button class="cdl" type="button" data-z="'+v.places.indexOf(pl)+'">'+ICON+'<span>Download '+pl.photos.length+'</span></button>':'')+'</div>'+
-   (pl.photos.length?'<div class="cgrid">'+pl.photos.map(function(p){return'<figure class="tile" style="margin:0"><button class="topen" type="button" data-o="'+p.k+'" aria-label="Open photo: '+q2(p.c)+'"><img src="'+gsrc(p.id,900)+'" alt="'+q2(p.c)+' \u2014 '+q2(p.place)+'" loading="lazy" draggable="false"></button><figcaption class="tcap">'+q2(p.c)+'</figcaption></figure>'}).join('')+'</div>':'<div class="gempty">No photos here yet \u2014 coming soon</div>')+'</section>'});
+   (pl.photos.length?'<div class="cgrid">'+pl.photos.map(function(p){return'<figure class="tile" style="margin:0"><button class="topen" type="button" data-o="'+p.k+'" aria-label="Open photo: '+q2(p.c)+'"><img src="'+gsrc(p.id,900)+'" alt="'+q2(p.c)+' \u2014 '+q2(p.place)+'" loading="lazy" draggable="false"></button><span class="tbd" data-rk="'+p.k+'">'+rxBadge(p.id)+'</span><figcaption class="tcap">'+q2(p.c)+'</figcaption></figure>'}).join('')+'</div>':'<div class="gempty">No photos here yet \u2014 coming soon</div>')+'</section>'});
   $('gchaps').innerHTML=h;
  }
  function selectTrip(id,place){
@@ -842,15 +853,38 @@ function __start(){
   if(o)openLb(+o.dataset.o,o);else if(z){var p=gView.places[+z.dataset.z];if(p.drive)window.open(p.drive,'_blank','noopener');else dlZip(p.photos,p.n,z)}});
  // lightbox
  var lb=$('lb'),lbFrom=null;
- function lbShow(){var p=gList[lbI];$('lbi').src=gsrc(p.id,1600);$('lbi').alt=p.c;$('lbc').textContent=p.c;$('lbpl').textContent=p.place+' \u00b7 '+(lbI+1)+' / '+gList.length;var m=gList.length<2;$('lbp').hidden=$('lbnx').hidden=m}
+ function lbShow(){var p=gList[lbI];$('lbi').src=gsrc(p.id,1600);$('lbi').alt=p.c;$('lbc').textContent=p.c;$('lbpl').textContent=p.place+' \u00b7 '+(lbI+1)+' / '+gList.length;var m=gList.length<2;$('lbp').hidden=$('lbnx').hidden=m;rxPaint()}
  function openLb(k,from){lbI=k;lbFrom=from;lbShow();lb.hidden=false;document.documentElement.style.overflow='hidden';$('lbx').focus({preventScroll:true})}
  function closeLb(){lb.hidden=true;document.documentElement.style.overflow='';if(lbFrom)lbFrom.focus({preventScroll:true})}
  function lbStep(d){lbI=(lbI+d+gList.length)%gList.length;lbShow()}
  $('lbx').onclick=closeLb;$('lbp').onclick=function(){lbStep(-1)};$('lbnx').onclick=function(){lbStep(1)};
  lb.addEventListener('click',function(e){if(e.target===lb)closeLb()});
  var tx=0,ty=0;lb.addEventListener('touchstart',function(e){var t=e.changedTouches[0];tx=t.clientX;ty=t.clientY},{passive:true});lb.addEventListener('touchend',function(e){var t=e.changedTouches[0],dx=t.clientX-tx,dy=t.clientY-ty;if(Math.abs(dx)>50&&Math.abs(dx)>Math.abs(dy)*1.5&&gList.length>1)lbStep(dx<0?1:-1)},{passive:true});
+
  $('lbd').onclick=function(){dlOne(gList[lbI])};
- addEventListener('keydown',function(e){if(lb.hidden)return;if(e.key==='Escape')closeLb();else if(e.key==='ArrowRight')lbStep(1);else if(e.key==='ArrowLeft')lbStep(-1);else if(e.key==='Tab'){var f=[$('lbx'),$('lbp'),$('lbnx'),$('lbd')].filter(function(x){return!x.hidden}),k=f.indexOf(document.activeElement);e.preventDefault();f[(k+(e.shiftKey?-1:1)+f.length)%f.length].focus()}});
+ // ---- emoji reactions: counts live in Supabase (table "reactions"); what this browser tapped is kept in localStorage ----
+ var RX=['\u2764\uFE0F','\uD83D\uDD25','\uD83C\uDFD4\uFE0F'],RXN=['Love','Fire','Mountains'],RXC={},RXM={},RXU=window.SUPABASE_URL,RXK=window.SUPABASE_ANON_KEY,
+  RXON=!!(RXU&&RXK&&!/YOUR-/.test(RXU+RXK));
+ try{RXM=JSON.parse(localStorage.getItem('rx-mine')||'{}')||{}}catch(e){RXM={}}
+ function rxH(){return{apikey:RXK,Authorization:'Bearer '+RXK,'Content-Type':'application/json'}}
+ function rxN(id,e){return RXC[id+'|'+e]||0}
+ function rxBadge(id){return RX.map(function(e){var n=rxN(id,e);return n>0?'<span>'+e+' '+n+'</span>':''}).join('')}
+ function rxBadges(){[].forEach.call(document.querySelectorAll('.tbd[data-rk]'),function(el){var p=gList[+el.dataset.rk];if(p)el.innerHTML=rxBadge(p.id)})}
+ function rxPaint(){var p=gList[lbI];if(!p)return;
+  $('lbrx').innerHTML=RX.map(function(e,i){var on=!!RXM[p.id+'|'+e],n=rxN(p.id,e);
+   return'<button type="button" class="rxb" data-e="'+e+'" aria-pressed="'+on+'" aria-label="'+RXN[i]+(n?', '+n:'')+'"><span class="e">'+e+'</span><span>'+(n||'')+'</span></button>'}).join('')}
+ function rxSave(){try{localStorage.setItem('rx-mine',JSON.stringify(RXM))}catch(e){}}
+ function rxSet(id,e,on){var k=id+'|'+e;if(on)RXM[k]=1;else delete RXM[k];RXC[k]=Math.max(0,rxN(id,e)+(on?1:-1))}
+ function rxLoad(){if(!RXON)return;
+  fetch(RXU+'/rest/v1/reactions?select=photo_key,emoji,count&limit=10000',{headers:rxH()}).then(function(r){return r.ok?r.json():[]}).then(function(rows){
+   rows.forEach(function(r){RXC[r.photo_key+'|'+r.emoji]=r.count});rxBadges();if(!lb.hidden)rxPaint()}).catch(function(){})}
+ $('lbrx').addEventListener('click',function(ev){var b=ev.target.closest('.rxb');if(!b)return;var p=gList[lbI],e=b.dataset.e,on=!RXM[p.id+'|'+e];
+  rxSet(p.id,e,on);rxSave();rxPaint();rxBadges();
+  var nb=[].filter.call($('lbrx').children,function(x){return x.dataset.e===e})[0];if(nb){nb.classList.add('pop');nb.focus({preventScroll:true})}
+  if(RXON)fetch(RXU+'/rest/v1/rpc/react_to_photo',{method:'POST',headers:rxH(),body:JSON.stringify({p_key:p.id,p_emoji:e,p_delta:on?1:-1})}).then(function(r){if(!r.ok)throw 0}).catch(function(){
+   rxSet(p.id,e,!on);rxSave();rxBadges();if(!lb.hidden&&gList[lbI]===p)rxPaint()})});
+ rxLoad();
+ addEventListener('keydown',function(e){if(lb.hidden)return;if(e.key==='Escape')closeLb();else if(e.key==='ArrowRight')lbStep(1);else if(e.key==='ArrowLeft')lbStep(-1);else if(e.key==='Tab'){var f=[$('lbx'),$('lbp'),$('lbnx')].concat([].slice.call($('lbrx').children),[$('lbd')]).filter(function(x){return!x.hidden}),k=f.indexOf(document.activeElement);e.preventDefault();f[(k+(e.shiftKey?-1:1)+f.length)%f.length].focus()}});
  // "View photos" links elsewhere open the matching trip
  document.addEventListener('click',function(e){var a=e.target.closest('[data-gal]');if(a)selectTrip(a.dataset.gal,-1)});
  renderTabs();
