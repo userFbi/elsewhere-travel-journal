@@ -800,7 +800,7 @@ function __start(){
  function statesOf(v){var o={},a=[];v.places.forEach(function(p){if(!o[p.s]){o[p.s]=[];a.push(p.s)}o[p.s].push(p)});return a.map(function(k){return{s:k,list:o[k]}})}
  function colOf(v){return 'var('+(v.t?v.t.c:'--blue')+')'}
  function renderTabs(){var el=$('gtabs');el.innerHTML='';
-  var av=buildView('all'),first=GAL[TRIPS[0].id],cards=[{id:'all',img:TRIPS[0].img,t:'All places',sm:av.places.length+' places \u00b7 '+statesOf(av).length+' states',c:'--blue'}];
+  var av=buildView('all'),first=GAL[TRIPS[0].id],allCv=window.SITE_DATA&&SITE_DATA.covers&&SITE_DATA.covers.all,cards=[{id:'all',img:allCv?(/^photo-/.test(allCv)?UN+allCv+'?auto=format&fit=crop&w=1100&q=80':allCv):TRIPS[0].img,t:'All places',sm:av.places.length+' places \u00b7 '+statesOf(av).length+' states',c:'--blue'}];
   TRIPS.forEach(function(t){if(GAL[t.id])cards.push({id:t.id,img:t.img,t:t.t,sm:t.when+' \u00b7 '+GAL[t.id].places.length+' places',c:t.c})});
   cards.forEach(function(c){var b=document.createElement('button');b.type='button';b.className='gcov';b.setAttribute('role','tab');b.dataset.id=c.id;b.style.setProperty('--c','var('+c.c+')');
    b.innerHTML='<img src="'+c.img.replace(/w=\d+/,'w=500')+'" alt="" loading="lazy" draggable="false"><b>'+q2(c.t)+'</b><small>'+c.sm+'</small>';

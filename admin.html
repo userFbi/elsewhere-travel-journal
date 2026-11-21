@@ -218,12 +218,14 @@ function addFiles(files,folder,max){var list=[].filter.call(files,function(f){re
 
 /* ---------- Views ---------- */
 var view=$('view');
+function allCoverSec(){var cu=S.covers.all,fb=S.covers[T()[0].id],custom=!!cu;
+ return'<section class="box sec"><h3>All places cover</h3><p class="h">The photo on the \u201cAll places\u201d card at the top of the gallery.'+(custom?'':' Right now it reuses the first trip\u2019s cover \u2014 upload one to give it its own.')+'</p><div style="width:200px">'+tile(cu||fb,{cov:1,dz:'cover|all',acts:up('cover|all',custom?'Replace photo':'Upload cover')+(custom?'<button class="btn sm" data-a="allreset" type="button">Use first trip</button>':'')})+'</div></section>'}
 function tile(it,o){return'<div class="it'+(o.cov?' cov':'')+'"'+(o.dz?' data-dz="'+o.dz+'"':'')+'><div class="im"><img src="'+esc(srcOf(it))+'" alt="" loading="lazy"></div>'+(o.cap!=null?'<input type="text" data-cap="'+o.cap+'" value="'+esc(it.cap)+'" placeholder="Caption" aria-label="Caption">':'')+(o.drv?'<input type="text" data-drv="'+o.drv+'" value="'+esc(it.drive||'')+'" placeholder="Drive link (original photo)" aria-label="Google Drive link for download" style="border-color:'+(it.drive?'#2a7a2a':'var(--ink)')+'">':'')+'<div class="acts">'+(o.acts||'')+'</div></div>'}
 function up(attr,label,multi){return'<label class="btn sm y">'+label+'<input type="file" accept="image/*" '+(multi?'multiple ':'')+'data-up="'+attr+'"></label>'}
 function homeV(){
  var h='<h2>Home page photos</h2><p class="sub">Everything on <b>index.html</b> that uses a picture. Photos are resized in your browser (max 1800px) before they\u2019re saved.</p>';
  h+='<section class="box sec"><h3>Hero portrait</h3><p class="h">The photo next to \u201cI\u2019m Tushar\u201d.</p><div class="grid" style="grid-template-columns:minmax(180px,260px)">'+tile(S.hero,{cov:1,dz:'hero',acts:up('hero','Replace photo')})+'</div></section>';
- h+='<section class="box sec"><h3>Journey covers</h3><p class="h">Used in Selected journeys, the guide books, the map log and the gallery trip cards.</p><div class="grid">'+T().map(function(t){return'<div><b style="font-size:.9rem">'+esc(t.t)+'</b>'+tile(S.covers[t.id],{cov:1,dz:'cover|'+t.id,acts:up('cover|'+t.id,'Replace photo')})+'</div>'}).join('')+'</div></section>';
+ h+='<section class="box sec"><h3>Journey covers</h3><p class="h">Used in Selected journeys, the guide books, the map log and the gallery trip cards.</p><div class="grid">'+T().map(function(t){return'<div><b style="font-size:.9rem">'+esc(t.t)+'</b>'+tile(S.covers[t.id],{cov:1,dz:'cover|'+t.id,acts:up('cover|'+t.id,'Replace photo')})+'</div>'}).join('')+'</div></section>'+allCoverSec();
  h+='<section class="box sec"><h3>Pinned memories</h3><p class="h">The 4 polaroids hanging on the pegboard.</p><div class="grid">'+S.pinned.map(function(p,i){return tile(p,{cap:'pin|'+i,dz:'pin|'+i,acts:up('pin|'+i,'Replace')})}).join('')+'</div></section>';
  h+='<section class="box sec"><h3>Camera roll <span style="font:500 .9rem var(--sans)">('+S.roll.length+' photos)</span></h3><p class="h">The photos you flip through on the camera. Drop several at once.</p><div class="dz" data-dz="roll">drop photos here<small>or use the button below</small></div><div class="row" style="margin-bottom:1rem">'+up('roll','+ Add photos',1)+'</div><div class="grid">'+S.roll.map(function(p,i){return tile(p,{cap:'roll|'+i,acts:'<button class="btn sm" data-a="mvroll|'+i+'|-1" type="button" aria-label="Move earlier">\u25c0</button><button class="btn sm" data-a="mvroll|'+i+'|1" type="button" aria-label="Move later">\u25b6</button><button class="btn sm r" data-a="rmroll|'+i+'" type="button">Delete</button>'})}).join('')+'</div></section>';
  view.innerHTML=h}
@@ -244,7 +246,7 @@ function galV(){
   '<div class="grid">'+p.photos.map(function(ph,i){return tile(ph,{cap:'ph|'+pi+'|'+i,drv:'ph|'+pi+'|'+i,acts:'<button class="btn sm'+(S.covers[S.trip]&&S.covers[S.trip].src===ph.src?' y':'')+'" data-a="cover|'+pi+'|'+i+'" type="button">\u2605 Cover</button><button class="btn sm" data-a="mvph|'+pi+'|'+i+'|-1" type="button" aria-label="Move earlier">\u25c0</button><button class="btn sm" data-a="mvph|'+pi+'|'+i+'|1" type="button" aria-label="Move later">\u25b6</button><button class="btn sm r" data-a="rmph|'+pi+'|'+i+'" type="button">Delete</button>'})}).join('')+'</div></div>'});
  h+='</section>';view.innerHTML=h}
 function counts(){var n=0,b=0;function c(it){n++;if(/\/storage\/v1\//.test(it.src))b++}
- c(S.hero);S.pinned.forEach(c);S.roll.forEach(c);T().forEach(function(t){c(S.covers[t.id]);S.gal[t.id].places.forEach(function(p){p.photos.forEach(c)})});return{n:n,b:b}}
+ c(S.hero);if(S.covers.all)c(S.covers.all);S.pinned.forEach(c);S.roll.forEach(c);T().forEach(function(t){c(S.covers[t.id]);S.gal[t.id].places.forEach(function(p){p.photos.forEach(c)})});return{n:n,b:b}}
 function exportV(){var c=counts();
  view.innerHTML='<h2>Publish</h2><p class="sub">Your edits are a draft until you publish. Publishing writes them to Supabase, and index.html and gallery.html show them straight away \u2014 no files to upload.</p>'+
  '<section class="box sec"><h3>Publish to the live site</h3><div class="stat"><span>'+c.n+' photos in total</span><span>'+c.b+' uploaded to Supabase</span><span style="background:'+(S.dirty?'var(--pink)':'var(--green)')+'">'+(S.dirty?'Unpublished changes':'Everything is live')+'</span></div><button class="btn y" id="exp" type="button">Publish changes \u2191</button></section>'+
@@ -256,6 +258,7 @@ function softRender(){var y=scrollY;(S.tab==='home'?homeV:S.tab==='gallery'?galV
 
 /* ---------- Export ---------- */
 function buildData(){var d={hero:S.hero.src,pinned:S.pinned.map(function(p){return{src:p.src,cap:p.cap}}),roll:S.roll.map(function(p){return{src:p.src,cap:p.cap}}),covers:{},gal:{},trips:S.trips.map(function(t){return{id:t.id,t:t.t,when:t.when,c:t.c||null,note:t.note||'',desc:t.desc||'',rnd:(t.rnd==null?/\brandom\b/i.test(t.t):!!t.rnd)?1:0}})};
+ if(S.covers.all)d.covers.all=S.covers.all.src;
  T().forEach(function(t){d.covers[t.id]=S.covers[t.id].src;var pl=S.gal[t.id].places,ph=[];
   pl.forEach(function(p,pi){p.photos.forEach(function(x){ph.push(x.drive?[pi,x.src,x.cap,x.drive]:[pi,x.src,x.cap])})});
   d.gal[t.id]={places:pl.map(function(p){return{n:p.n,s:p.s,drive:p.drive||'',lat:p.lat==null?null:p.lat,lng:p.lng==null?null:p.lng}}),photos:ph}});return d}
@@ -267,6 +270,7 @@ function fromData(d){var D=defaults(),S2={hero:{src:d.hero||D.hero.src},covers:{
  S2.trips.forEach(function(t){S2.covers[t.id]={src:(d.covers&&d.covers[t.id])||D.covers[t.id]&&D.covers[t.id].src||'photo-1464278533981-50106e6176b1'};
   var g=d.gal&&d.gal[t.id]||{places:[{n:'New place',s:''}],photos:[]};S2.gal[t.id]={places:g.places.map(function(p){var c=GC[t.id+'|'+p.n]||[null,null];return{n:p.n,s:p.s,drive:p.drive||'',lat:p.lat!=null?p.lat:c[0],lng:p.lng!=null?p.lng:c[1],photos:[]}})};
   (g.photos||[]).forEach(function(x){var pl=S2.gal[t.id].places[x[0]];if(pl)pl.photos.push({src:x[1],cap:x[2]||'',drive:x[3]||''})})});
+ if(d.covers&&d.covers.all)S2.covers.all={src:d.covers.all};
  S2.trip=S2.trips[0].id;return S2}
 
 /* ---------- Styled confirm pop-up (replaces the browser's confirm box) ---------- */
@@ -425,6 +429,7 @@ document.addEventListener('click',function(e){
  if(k==='rmtrip'){if(S.trips.length<2){toast('Keep at least one trip');return}var tr0=T().filter(function(x){return x.id===S.trip})[0],tid0=S.trip,gp=S.gal[tid0].places,np=gp.length,nph=0;gp.forEach(function(q){nph+=q.photos.length});
   askConfirm({title:'Delete this trip?',msg:'The trip, all its places and photos will be removed from the site the next time you publish.',ok:'Delete trip',prev:'<b>'+esc(tr0.t)+'</b><span>'+np+' place'+(np===1?'':'s')+' \u00b7 '+nph+' photo'+(nph===1?'':'s')+'</span>',color:tr0.c?'var('+tr0.c+')':null}).then(function(ok){if(!ok)return;
    S.trips=S.trips.filter(function(x){return x.id!==tid0});delete S.gal[tid0];delete S.covers[tid0];S.trip=S.trips[0].id;save();render()});return}
+ if(k==='allreset'){delete S.covers.all;save();softRender();toast('All places cover reset');return}
  if(k==='cover'){var ph0=g.places[+a[1]].photos[+a[2]];S.covers[S.trip]={src:ph0.src,blob:ph0.blob};save();softRender();toast('Cover updated');return}
  if(k==='find'){openGm(S.trip,+a[1]);return}
  if(k==='mvroll')mv(S.roll,+a[1],+a[2]);
