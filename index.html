@@ -576,17 +576,15 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%;-webkit-tap-highlight-c
   transition:opacity .22s ease,transform .22s ease,visibility 0s linear .22s}
  .nl.open{visibility:visible;opacity:1;pointer-events:auto;transform:none;transition:opacity .22s ease,transform .22s ease}
 
- .nl{counter-reset:n}
- .nl a{counter-increment:n;display:flex;align-items:center;justify-content:flex-start;gap:.8rem;
-  min-height:54px;padding:.8rem 1rem;font-size:1.3rem;text-align:left;
+ .nl a{display:flex;align-items:center;justify-content:flex-start;gap:.8rem;
+  min-height:54px;padding:.8rem 1.1rem;font-size:1.3rem;text-align:left;
   border:2px solid transparent;border-radius:14px}
  .nl a+a{box-shadow:0 -1px 0 color-mix(in srgb,var(--ink) 14%,transparent)}
- .nl a::before{content:"0" counter(n);font:700 .8rem/1 var(--sans);letter-spacing:.06em;opacity:.45;min-width:1.4rem}
  .nl a::after{content:"\2192";margin-left:auto;opacity:.35;transition:transform .2s,opacity .2s}
  .nl a:hover,.nl a:focus-visible{transform:none;border-color:var(--ink);background:color-mix(in srgb,var(--yellow) 55%,transparent);color:var(--ink);outline:none}
  .nl a:active{background:var(--yellow);color:#111}
  .nl a.on{background:var(--ink);color:var(--bg);border-color:var(--ink);box-shadow:none}
- .nl a.on::before,.nl a.on::after{opacity:.8}
+ .nl a.on::after{opacity:.8}
  .nl a:hover::after{transform:translateX(3px);opacity:.8}
  .nl a.on+a,.nl a:hover+a{box-shadow:none}
 }
