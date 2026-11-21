@@ -758,7 +758,7 @@ function __start(){
    return{id:x.id,t:x.t||'Trip',sp:sp,long:sp.split('|').some(function(l){return l.length>11})?1:0,when:x.when||'',place:st.join(' \u00b7 ')||'India',states:st,
     note:x.note||(nm.length+' place'+(nm.length===1?'':'s')+(np?' \u00b7 '+np+' photo'+(np===1?'':'s'):'')),alt:x.t||'',
     desc:x.desc||(nm.length?nm.length+' place'+(nm.length===1?'':'s')+(st.length?' across '+st.join(', '):'')+'.':''),
-    img:cv?full(cv,1100):UNS+'photo-1464278533981-50106e6176b1?auto=format&fit=crop&w=1100&q=80',c:x.c||COLS[k%4],rnd:x.rnd?1:0}})}
+    img:cv?full(cv,1100):UNS+'photo-1464278533981-50106e6176b1?auto=format&fit=crop&w=1100&q=80',c:x.c||COLS[k%4],rnd:x.rnd}})}
  TRIPS=TRIPS.map(function(t,k){return{t:t,k:k}}).sort(function(a,b){return wn(b.t.when)-wn(a.t.when)||a.k-b.k}).map(function(o){return o.t});
  var hsT=document.querySelector('.hs__track');
  TRIPS.forEach(function(t){var a=document.createElement('article');a.className='hs__item';
@@ -816,7 +816,7 @@ function __start(){
  function tripPlaces(id){var g=SD.gal&&SD.gal[id],src=g?g.places:(DP[id]||[]).map(function(p){return{n:p[0],s:p[1],lat:p[2],lng:p[3]}}),out=[];
   src.forEach(function(p){var la=p.lat,ln=p.lng;if(typeof la!=='number'||typeof ln!=='number'){var d=(DP[id]||[]).filter(function(x){return x[0]===p.n})[0];if(d){la=d[2];ln=d[3]}}
    if(typeof la==='number'&&typeof ln==='number')out.push({n:p.n,s:p.s||'',lat:la,lng:ln,raw:p})});return out}
- function mapTrips(){return TRIPS.map(function(t){return{id:t.id,t:t.t,when:t.when,c:t.c||'--yellow',d:t.desc||'',rnd:t.rnd?1:0,places:tripPlaces(t.id)}}).filter(function(t){return t.places.length})}
+ function mapTrips(){return TRIPS.map(function(t){return{id:t.id,t:t.t,when:t.when,c:t.c||'--yellow',d:t.desc||'',rnd:(t.rnd==null?/\brandom\b/i.test(t.t):!!t.rnd)?1:0,places:tripPlaces(t.id)}}).filter(function(t){return t.places.length})}
  var MT=mapTrips(),stt={},npl=0;MT.forEach(function(t){t.places.forEach(function(p){npl++;if(p.s)stt[p.s]=1})});
  $('stat').textContent=MT.filter(function(t){return!t.rnd}).length+' journeys \u00b7 '+Object.keys(stt).length+' states \u00b7 '+npl+' places \u00b7 '+(matchMedia('(pointer:coarse)').matches?'tap a pin to zoom':'click the map to zoom');
  document.querySelectorAll('.mv').forEach(function(e){e.setAttribute('aria-hidden','true')});
@@ -1071,7 +1071,7 @@ function __start(){
     PL.push({g:g,j:j.n,p:p,m:m});m.on('click',function(){sel(g,true)});mk[j.n].push(m)});
    var route=j.places.map(function(p){return p.n.replace(/&/g,'&amp;')}).join(' \u2192 ');
    var b=document.createElement('div');b.className='le';b.style.setProperty('--c','var('+j.c+')');
-   b.innerHTML='<button class="le-h" type="button" aria-expanded="false"><span class="pn">'+(j.rnd?'★':j.dn)+'</span><span class="le-m"><span class="le-date">'+j.w+'</span><small>'+j.pl+' \u00b7 '+j.places.length+' place'+(j.places.length>1?'s':'')+'</small><strong>'+j.t.replace(/&/g,'&amp;')+'</strong></span></button><div class="le-b"><div class="le-i">'+(j.d?'<p>'+j.d+'</p>':'')+'<p><b>Places:</b> '+route+'</p><a class="arrow" href="gallery.html?trip='+encodeURIComponent(MT[j.n-1].id)+'">View photos <span aria-hidden="true">↗</span></a></div></div>';
+   b.innerHTML='<button class="le-h" type="button" aria-expanded="false"><span class="pn">'+(j.rnd?'<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-label="Random place"><path d="M12 22s7-6.2 7-12a7 7 0 0 0-14 0c0 5.8 7 12 7 12z"/><circle cx="12" cy="10" r="2.5"/></svg>':j.dn)+'</span><span class="le-m"><span class="le-date">'+j.w+'</span><small>'+j.pl+' \u00b7 '+j.places.length+' place'+(j.places.length>1?'s':'')+'</small><strong>'+j.t.replace(/&/g,'&amp;')+'</strong></span></button><div class="le-b"><div class="le-i">'+(j.d?'<p>'+j.d+'</p>':'')+'<p><b>Places:</b> '+route+'</p><a class="arrow" href="gallery.html?trip='+encodeURIComponent(MT[j.n-1].id)+'">View photos <span aria-hidden="true">↗</span></a></div></div>';
    b.firstChild.onclick=function(){pick(j.n,true)};list.appendChild(b);items[j.n]=b;
   });
   PL.sort(function(a,b){return a.g-b.g});
