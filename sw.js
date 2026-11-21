@@ -2,7 +2,7 @@
    - Pages & scripts: network-first (always fresh, falls back to cache offline)
    - Images / fonts / CDN libs: cache-first with background refresh
    - Admin pages, uploads (non-GET) and API calls are never touched */
-const VERSION = 'tj-v1';
+const VERSION = 'tj-v2';
 const SHELL = `${VERSION}-shell`;
 const MEDIA = `${VERSION}-media`;
 const MAX_MEDIA = 120;
@@ -10,7 +10,12 @@ const PRECACHE = ['./', 'index.html', 'manifest.webmanifest', 'icons/icon-192.pn
 const STATIC_HOSTS = ['fonts.googleapis.com', 'fonts.gstatic.com', 'cdnjs.cloudflare.com'];
 
 self.addEventListener('install', (e) => {
-  e.waitUntil(caches.open(SHELL).then((c) => c.addAll(PRECACHE)).then(() => self.skipWaiting()));
+  // Tolerant precache: one missing file must never stop the worker from installing
+  e.waitUntil(
+    caches.open(SHELL)
+      .then((c) => Promise.allSettled(PRECACHE.map((u) => c.add(u))))
+      .then(() => self.skipWaiting())
+  );
 });
 
 self.addEventListener('activate', (e) => {
