@@ -17,7 +17,19 @@ button,input,select{font:inherit;color:inherit}
 .wrap{width:min(100% - var(--pad)*2,1200px);margin-inline:auto}
 .box{border:2px solid var(--ink);background:var(--card);box-shadow:6px 6px 0 var(--ink)}
 header{position:sticky;top:0;z-index:20;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(10px);border-bottom:2px solid var(--ink)}
-.hb{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:.8rem 0;flex-wrap:wrap}
+.hb{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:1rem;padding:.8rem 0}
+.hl,.hr{display:flex;align-items:center;gap:.7rem;min-width:0}
+.hr{justify-content:flex-end}
+.hb .btn,.hb .tab{height:2.4rem;padding-block:0;align-items:center;justify-content:center}
+.hb .btn{box-shadow:3px 3px 0 var(--ink)}
+.hb .btn:hover{box-shadow:4px 4px 0 var(--ink)}
+.hb .tab{display:inline-flex;font-family:inherit;line-height:1}
+.hb .logo{display:inline-flex;align-items:center;height:2.4rem;padding-block:0;box-shadow:3px 3px 0 var(--ink);white-space:nowrap}
+.hb .btn,.hb a.btn{text-decoration:none;color:var(--ink)}
+.hb #dirty{cursor:default;white-space:nowrap;display:inline-flex;align-items:center;height:2rem;padding:0 .8rem;box-shadow:2px 2px 0 var(--ink)}
+.hb .tabs{flex-wrap:nowrap}
+@media(max-width:1000px){.hb{grid-template-columns:1fr auto}.hb .tabs{grid-column:1/-1;grid-row:2;justify-content:center}.hb .hr{grid-row:1;grid-column:2}}
+@media(max-width:560px){.hb .tabs{overflow-x:auto}.hb .logo{display:none}.hb #dirty{display:none!important}}
 .logo{font:400 1.3rem/1 "Gochi Hand",cursive;letter-spacing:.04em;text-transform:uppercase;padding:.4rem 1rem;border:2.5px solid var(--ink);border-radius:10px;background:var(--card);box-shadow:4px 4px 0 var(--ink)}
 .tabs{display:flex;gap:.5rem;flex-wrap:wrap}
 .tab{cursor:pointer;padding:.55rem 1.1rem;border:2px solid var(--ink);border-radius:999px;background:var(--card);font-weight:700;font-size:.9rem}
@@ -114,9 +126,10 @@ body.drg,body.drg *{cursor:grabbing!important;-webkit-user-select:none;user-sele
 </div>
 
 <div id="app" hidden>
-<header><div class="wrap hb"><span class="logo">Admin ✺</span>
- <div class="tabs" role="tablist"><button class="tab" data-t="home" role="tab">Home page</button><button class="tab" data-t="gallery" role="tab">Gallery</button><button class="tab" data-t="export" role="tab">Publish</button></div>
- <span class="pill" id="dirty" hidden style="background:var(--pink);font-size:.75rem">Unpublished changes</span><button class="btn sm y" id="pubq" type="button">Publish ↑</button><button class="btn sm" id="out" type="button">Log out</button></div></header>
+<header><div class="wrap hb">
+ <div class="hl"><a class="btn b" href="index.html" title="Go to the live home page">← View site</a><span class="logo">Admin ✺</span></div>
+ <div class="tabs" role="tablist"><button class="tab" data-t="home" role="tab">Home photos</button><button class="tab" data-t="gallery" role="tab">Gallery</button><button class="tab" data-t="export" role="tab">Publish</button></div>
+ <div class="hr"><span class="pill" id="dirty" hidden style="background:var(--pink);font-size:.75rem">Unpublished changes</span><button class="btn y" id="pubq" type="button">Publish ↑</button><button class="btn" id="out" type="button">Log out</button></div></div></header>
 <main class="wrap" id="view"></main>
 </div>
 <div class="mo" id="mo" hidden><form class="mf box" id="tf" novalidate><span class="tape"></span>
