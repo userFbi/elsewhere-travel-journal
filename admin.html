@@ -139,6 +139,7 @@ body.drg,body.drg *{cursor:grabbing!important;-webkit-user-select:none;user-sele
   <div class="fr"><label class="fl">Month<select id="tfm"></select></label><label class="fl">Year<input id="tfy" type="number" min="1990" max="2100"></label></div>
   <div class="fr"><label class="fl">First place<em>Where did it start?</em><input id="tfp" type="text" maxlength="40" placeholder="e.g. Kaza"></label><label class="fl">State / country<input id="tfs" type="text" maxlength="40" placeholder="e.g. Himachal Pradesh"></label></div>
   <div class="fl">Cover photo<label class="cvz" id="tfz"><span id="tfzt">drop a photo here<small>or click to browse — you can change it later</small></span><input id="tff" type="file" accept="image/*"></label></div>
+  <label style="display:flex;gap:.6rem;align-items:flex-start;font-weight:600;font-size:.9rem;cursor:pointer"><input type="checkbox" id="tfr" style="width:auto;margin-top:.25rem"><span>Just a random place, not a trip<br><em style="font-style:normal;font-weight:500;opacity:.6;font-size:.78rem">It still counts in places on the map, but gets no trip number in the travel log.</em></span></label>
   <div class="fl">Card colour<div class="sw" id="tfc"></div></div>
   <div class="prev" id="tfv" style="--c:var(--yellow)"><b id="tfvb">New trip</b><span>This is how the trip appears in the gallery tabs.</span></div>
   <p class="fe" id="tfe" role="alert"></p>
@@ -231,6 +232,7 @@ function galV(){
  var h='<h2>Gallery photos</h2><p class="sub">Pick a trip, then add photos under each place. Each photo\u2019s caption shows on hover and in the viewer. Drag the trip tabs to reorder them.</p><div class="pills">'+T().map(function(t){return'<button class="pill" type="button" data-a="trip|'+t.id+'"'+(t.c?' style="--c:var('+t.c+')"':'')+' aria-pressed="'+(t.id===S.trip)+'">'+esc(t.t)+'</button>'}).join('')+'<button class="pill" type="button" data-a="addtrip" style="background:var(--green)">+ Add trip</button></div>';
  h+='<section class="box sec"><h3>'+esc(tr.t)+' <span style="font:500 .9rem var(--sans)">\u00b7 '+g.places.length+' places \u00b7 '+tot+' photos</span></h3><p class="h">Newest stop is on top. The number is the stop\u2019s position in the route (1 = start). Drag \u283f to reorder \u2014 numbers update by themselves.</p>'+
  '<div class="ph"><input type="text" data-tn="1" value="'+esc(tr.t)+'" aria-label="Trip name" placeholder="Trip name"><input type="text" data-tw="1" value="'+esc(tr.when)+'" aria-label="When" placeholder="e.g. Mar 2026"><button class="btn sm r" type="button" data-a="rmtrip">Delete trip</button></div>'+
+ '<label class="ccol" style="cursor:pointer"><input type="checkbox" data-trnd="1"'+(tr.rnd?' checked':'')+'><b>Random place, not a trip</b><span class="h" style="margin:0">(no trip number in the travel log; its places still count on the map)</span></label>'+
  '<div class="ccol"><b>Card colour</b><div class="sw sm">'+COLORS.map(function(c){return'<label><input type="radio" name="tcol" data-tcol="'+c+'"'+(tr.c===c?' checked':'')+'><span style="--c:var('+c+')" title="'+c.slice(2)+'"></span></label>'}).join('')+'</div></div>'+
  '<div class="ph"><input type="text" data-tnote="1" value="'+esc(tr.note||'')+'" aria-label="Sticker note" placeholder="Sticker note, e.g. a very hard climb" style="width:260px;max-width:100%"><input type="text" data-tdesc="1" value="'+esc(tr.desc||'')+'" aria-label="Short description" placeholder="Short description for the home page" style="flex:1;min-width:240px"></div>'+
  '<div class="row" style="margin:1rem 0;align-items:flex-start;gap:1rem"><div style="width:200px"><div class="it cov" data-dz="cover|'+S.trip+'"><div class="im"><img src="'+esc(srcOf(S.covers[S.trip],700))+'" alt="" loading="lazy"></div></div></div><div><b>Trip cover</b><p class="h" style="margin:.3rem 0 .7rem;max-width:30rem">Shown on this trip\u2019s card at the top of the gallery and on the home page. Click <b>\u2605 Cover</b> on any photo below to use it, or upload a different image.</p>'+up('cover|'+S.trip,'Upload new cover')+'</div></div>'+
@@ -253,7 +255,7 @@ function render(){[].forEach.call(document.querySelectorAll('.tab'),function(b){
 function softRender(){var y=scrollY;(S.tab==='home'?homeV:S.tab==='gallery'?galV:exportV)();scrollTo(0,y)}
 
 /* ---------- Export ---------- */
-function buildData(){var d={hero:S.hero.src,pinned:S.pinned.map(function(p){return{src:p.src,cap:p.cap}}),roll:S.roll.map(function(p){return{src:p.src,cap:p.cap}}),covers:{},gal:{},trips:S.trips.map(function(t){return{id:t.id,t:t.t,when:t.when,c:t.c||null,note:t.note||'',desc:t.desc||''}})};
+function buildData(){var d={hero:S.hero.src,pinned:S.pinned.map(function(p){return{src:p.src,cap:p.cap}}),roll:S.roll.map(function(p){return{src:p.src,cap:p.cap}}),covers:{},gal:{},trips:S.trips.map(function(t){return{id:t.id,t:t.t,when:t.when,c:t.c||null,note:t.note||'',desc:t.desc||'',rnd:t.rnd?1:0}})};
  T().forEach(function(t){d.covers[t.id]=S.covers[t.id].src;var pl=S.gal[t.id].places,ph=[];
   pl.forEach(function(p,pi){p.photos.forEach(function(x){ph.push(x.drive?[pi,x.src,x.cap,x.drive]:[pi,x.src,x.cap])})});
   d.gal[t.id]={places:pl.map(function(p){return{n:p.n,s:p.s,drive:p.drive||'',lat:p.lat==null?null:p.lat,lng:p.lng==null?null:p.lng}}),photos:ph}});return d}
@@ -387,7 +389,7 @@ $('tf').onsubmit=function(e){e.preventDefault();var nm=$('tfn').value.trim();
  var yr=parseInt($('tfy').value,10);if(!yr||yr<1990||yr>2100){$('tfe').textContent='Enter a valid year.';$('tfy').focus();return}
  var id=slug(nm),n=2,base=id;while(S.gal[id]){id=base+'-'+n++}
  var col=document.querySelector('input[name=tc]:checked').value,pl=$('tfp').value.trim(),stt=$('tfs').value.trim();
- S.trips.unshift({id:id,t:nm,when:$('tfm').value+' '+yr,c:col});
+ S.trips.unshift({id:id,t:nm,when:$('tfm').value+' '+yr,c:col,rnd:$('tfr').checked?1:0});
  S.gal[id]={places:[{n:pl||'New place',s:stt,photos:[]}]};
  S.covers[id]=pend?{src:pend.src,blob:pend.blob}:{src:'photo-1464278533981-50106e6176b1'};
  S.trip=id;S.tab='gallery';save();closeTrip();render();if(pl)geo(id,0,true);toast('Trip created \u2014 now add photos to '+(pl||'your first place'))};
@@ -401,7 +403,7 @@ function setUp(kind,files,done){
  else if(k==='roll'){addFiles(files,'camera-roll',1800).then(function(r){r.forEach(function(it){S.roll.push(it)});if(r.length){save();softRender();toast('Added '+r.length+' photo'+(r.length>1?'s':''))}})}
  else if(k==='gal'){var pi=+a[1],tid=S.trip;addFiles(files,'gallery/'+tid,2000).then(function(r){var p=S.gal[tid].places[pi];if(!p)return;r.forEach(function(it){p.photos.push(it)});if(r.length){save();softRender();toast('Added '+r.length+' photo'+(r.length>1?'s':'')+' to '+p.n)}})}
 }
-document.addEventListener('change',function(e){var f=e.target;if(S&&f.dataset&&f.dataset.tcol){var tc=T().filter(function(x){return x.id===S.trip})[0];if(tc){tc.c=f.dataset.tcol;save();softRender();toast('Card colour updated')}return}if(S&&f.dataset&&(f.dataset.ps!=null||f.dataset.pn!=null)){autoFind(S.trip,+(f.dataset.ps!=null?f.dataset.ps:f.dataset.pn),f)}if(f.dataset&&f.dataset.up&&f.files&&f.files.length){setUp(f.dataset.up,f.files);f.value=''}});
+document.addEventListener('change',function(e){var f=e.target;if(S&&f.dataset&&f.dataset.trnd!=null){var tr1=T().filter(function(x){return x.id===S.trip})[0];if(tr1){tr1.rnd=f.checked?1:0;save();softRender();toast(f.checked?'Marked as a random place — no trip number':'Counted as a trip again')}return}if(S&&f.dataset&&f.dataset.tcol){var tc=T().filter(function(x){return x.id===S.trip})[0];if(tc){tc.c=f.dataset.tcol;save();softRender();toast('Card colour updated')}return}if(S&&f.dataset&&(f.dataset.ps!=null||f.dataset.pn!=null)){autoFind(S.trip,+(f.dataset.ps!=null?f.dataset.ps:f.dataset.pn),f)}if(f.dataset&&f.dataset.up&&f.files&&f.files.length){setUp(f.dataset.up,f.files);f.value=''}});
 document.addEventListener('input',function(e){var t=e.target,d=t.dataset||{};if(!S)return;
  if(d.cap){var a=d.cap.split('|'),k=a[0];if(k==='pin')S.pinned[+a[1]].cap=t.value;else if(k==='roll')S.roll[+a[1]].cap=t.value;else if(k==='ph')S.gal[S.trip].places[+a[1]].photos[+a[2]].cap=t.value;save()}
  else if(d.tn!=null){T().filter(function(x){return x.id===S.trip})[0].t=t.value;save()}else if(d.tw!=null){T().filter(function(x){return x.id===S.trip})[0].when=t.value;save()}
