@@ -67,6 +67,9 @@ h2{margin:0 0 .3rem;font-size:clamp(1.8rem,4vw,2.6rem);letter-spacing:-.03em}
 .grip{cursor:grab;touch-action:none;-webkit-user-select:none;user-select:none;display:grid;place-items:center;width:1.9rem;height:2.2rem;font-size:1.3rem;line-height:1;border:2px solid var(--ink);border-radius:8px;background:var(--bg)}
 .grip:hover{background:var(--yellow)}
 .place{position:relative}
+.it[data-pd] .im{cursor:grab;touch-action:none;-webkit-user-select:none;user-select:none}
+.it[data-pd] .im img{pointer-events:none;-webkit-user-drag:none}
+.it.dragging{background:var(--card);transform:rotate(-1.5deg)}
 .pill[data-a^="trip|"]{cursor:grab;touch-action:none;-webkit-user-select:none;user-select:none;position:relative}
 .dragging{z-index:40;cursor:grabbing!important;box-shadow:6px 6px 0 var(--ink)!important}
 .place.dragging{background:var(--card);outline:2px solid var(--ink);padding:.8rem;transform:rotate(-.3deg)}
@@ -220,7 +223,7 @@ function addFiles(files,folder,max){var list=[].filter.call(files,function(f){re
 var view=$('view');
 function allCoverSec(){var cu=S.covers.all,fb=S.covers[T()[0].id],custom=!!cu;
  return'<section class="box sec"><h3>All places cover</h3><p class="h">The photo on the \u201cAll places\u201d card at the top of the gallery.'+(custom?'':' Right now it reuses the first trip\u2019s cover \u2014 upload one to give it its own.')+'</p><div style="width:200px">'+tile(cu||fb,{cov:1,dz:'cover|all',acts:up('cover|all',custom?'Replace photo':'Upload cover')+(custom?'<button class="btn sm" data-a="allreset" type="button">Use first trip</button>':'')})+'</div></section>'}
-function tile(it,o){return'<div class="it'+(o.cov?' cov':'')+'"'+(o.dz?' data-dz="'+o.dz+'"':'')+'><div class="im"><img src="'+esc(srcOf(it))+'" alt="" loading="lazy"></div>'+(o.cap!=null?'<input type="text" data-cap="'+o.cap+'" value="'+esc(it.cap)+'" placeholder="Caption" aria-label="Caption">':'')+(o.drv?'<input type="text" data-drv="'+o.drv+'" value="'+esc(it.drive||'')+'" placeholder="Drive link (original photo)" aria-label="Google Drive link for download" style="border-color:'+(it.drive?'#2a7a2a':'var(--ink)')+'">':'')+'<div class="acts">'+(o.acts||'')+'</div></div>'}
+function tile(it,o){return'<div class="it'+(o.cov?' cov':'')+'"'+(o.pd!=null?' data-pd="'+o.pd+'"':'')+(o.dz?' data-dz="'+o.dz+'"':'')+'><div class="im"><img src="'+esc(srcOf(it))+'" alt="" loading="lazy"></div>'+(o.cap!=null?'<input type="text" data-cap="'+o.cap+'" value="'+esc(it.cap)+'" placeholder="Caption" aria-label="Caption">':'')+(o.drv?'<input type="text" data-drv="'+o.drv+'" value="'+esc(it.drive||'')+'" placeholder="Drive link (original photo)" aria-label="Google Drive link for download" style="border-color:'+(it.drive?'#2a7a2a':'var(--ink)')+'">':'')+'<div class="acts">'+(o.acts||'')+'</div></div>'}
 function up(attr,label,multi){return'<label class="btn sm y">'+label+'<input type="file" accept="image/*" '+(multi?'multiple ':'')+'data-up="'+attr+'"></label>'}
 function homeV(){
  var h='<h2>Home page photos</h2><p class="sub">Everything on <b>index.html</b> that uses a picture. Photos are resized in your browser (max 1800px) before they\u2019re saved.</p>';
@@ -243,7 +246,7 @@ function galV(){
   h+='<div class="place" data-pi="'+pi+'"><div class="ph"><span class="grip" title="Drag to reorder" aria-label="Drag to reorder">\u283f</span><span class="num">'+(pi+1)+'</span><input type="text" data-pn="'+pi+'" value="'+esc(p.n)+'" aria-label="Place name" placeholder="Place name"><input type="text" data-ps="'+pi+'" value="'+esc(p.s)+'" aria-label="State" placeholder="State" list="instates" autocomplete="off"><input type="number" step="any" data-plat="'+pi+'" value="'+(p.lat==null?'':p.lat)+'" aria-label="Latitude" placeholder="Lat"><input type="number" step="any" data-plng="'+pi+'" value="'+(p.lng==null?'':p.lng)+'" aria-label="Longitude" placeholder="Lng"><button class="btn sm b" data-a="find|'+pi+'" type="button">\ud83d\udccd Find on map</button><span style="font-size:.75rem;font-weight:700;color:'+(p.lat==null||p.lng==null?'#b00':'#2a7a2a')+'">'+(p.lat==null||p.lng==null?'no map pin yet':'on map \u2713')+'</span>'+(p.lat==null||p.lng==null?'':'<a href="https://www.google.com/maps?q='+p.lat+','+p.lng+'" target="_blank" rel="noopener" style="font-size:.75rem;font-weight:700">check \u2197</a>')+'<button class="btn sm r" data-a="rmplace|'+pi+'" type="button">Delete place</button></div>'+
   '<div class="ph"><input type="text" data-pdrv="'+pi+'" value="'+esc(p.drive||'')+'" aria-label="Google Drive folder link for this place" placeholder="Drive folder link for '+esc(p.n||'this place')+' (used by the place\u2019s Download button)" style="flex:1;min-width:260px;border-color:'+(p.drive?'#2a7a2a':'var(--ink)')+'"></div>'+
   '<div class="dz" data-dz="gal|'+pi+'">drop photos for '+esc(p.n||'this place')+'<small>'+p.photos.length+' photo'+(p.photos.length===1?'':'s')+' so far</small></div><div class="row" style="margin-bottom:1rem">'+up('gal|'+pi,'+ Add photos',1)+'</div>'+
-  '<div class="grid">'+p.photos.map(function(ph,i){return tile(ph,{cap:'ph|'+pi+'|'+i,drv:'ph|'+pi+'|'+i,acts:'<button class="btn sm'+(S.covers[S.trip]&&S.covers[S.trip].src===ph.src?' y':'')+'" data-a="cover|'+pi+'|'+i+'" type="button">\u2605 Cover</button><button class="btn sm" data-a="mvph|'+pi+'|'+i+'|-1" type="button" aria-label="Move earlier">\u25c0</button><button class="btn sm" data-a="mvph|'+pi+'|'+i+'|1" type="button" aria-label="Move later">\u25b6</button><button class="btn sm r" data-a="rmph|'+pi+'|'+i+'" type="button">Delete</button>'})}).join('')+'</div></div>'});
+  '<div class="grid">'+p.photos.map(function(ph,i){return tile(ph,{pd:i,cap:'ph|'+pi+'|'+i,drv:'ph|'+pi+'|'+i,acts:'<button class="btn sm'+(S.covers[S.trip]&&S.covers[S.trip].src===ph.src?' y':'')+'" data-a="cover|'+pi+'|'+i+'" type="button">\u2605 Cover</button><button class="btn sm r" data-a="rmph|'+pi+'|'+i+'" type="button">Delete</button>'})}).join('')+'</div></div>'});
  h+='</section>';view.innerHTML=h}
 function counts(){var n=0,b=0;function c(it){n++;if(/\/storage\/v1\//.test(it.src))b++}
  c(S.hero);if(S.covers.all)c(S.covers.all);S.pinned.forEach(c);S.roll.forEach(c);T().forEach(function(t){c(S.covers[t.id]);S.gal[t.id].places.forEach(function(p){p.photos.forEach(c)})});return{n:n,b:b}}
@@ -448,18 +451,20 @@ document.addEventListener('click',function(e){
 /* ---------- Drag to reorder (trip tabs + place entries) ---------- */
 var DR=null,supT=0;
 function dropPlaces(ids){var g=S.gal[S.trip],old=g.places;g.places=ids.slice().reverse().map(function(i){return old[i]});save();softRender()}
+function dropPhotos(pi,ids){var pl=S.gal[S.trip].places[pi],old=pl.photos;pl.photos=ids.map(function(i){return old[i]});save();softRender()}
 function dropTrips(ids){var m={};S.trips.forEach(function(t){m[t.id]=t});S.trips=ids.map(function(i){return m[i]}).filter(Boolean);save();softRender()}
 document.addEventListener('pointerdown',function(e){if(!S||(e.pointerType==='mouse'&&e.button!==0))return;
- var gr=e.target.closest('.grip'),el,o;
- if(gr){el=gr.closest('.place');if(!el)return;o={box:el.parentNode,sel:'.place',axis:'y',key:function(n){return+n.dataset.pi},drop:dropPlaces}}
+ var gr=e.target.closest('.grip'),el,o,pim=!gr&&e.target.closest('.it[data-pd] .im');
+ if(pim){el=pim.closest('.it');var pl=el.closest('.place');if(!pl)return;o={box:el.parentNode,sel:'.it[data-pd]',axis:'g',key:function(n){return+n.dataset.pd},drop:function(ids){dropPhotos(+pl.dataset.pi,ids)}}}
+ else if(gr){el=gr.closest('.place');if(!el)return;o={box:el.parentNode,sel:'.place',axis:'y',key:function(n){return+n.dataset.pi},drop:dropPlaces}}
  else{el=e.target.closest('.pill[data-a^="trip|"]');if(!el)return;o={box:el.parentNode,sel:'.pill[data-a^="trip|"]',axis:'x',key:function(n){return n.dataset.a.split('|')[1]},drop:dropTrips}}
- var r=el.getBoundingClientRect();if(gr)e.preventDefault();
+ var r=el.getBoundingClientRect();if(gr||pim)e.preventDefault();
  DR={el:el,o:o,x:e.clientX,y:e.clientY,cx:e.clientX,cy:e.clientY,gx:e.clientX-r.left,gy:e.clientY-r.top,on:false,raf:0}});
 document.addEventListener('pointermove',function(e){if(!DR)return;DR.cx=e.clientX;DR.cy=e.clientY;
  if(!DR.on){if(Math.hypot(e.clientX-DR.x,e.clientY-DR.y)<6)return;DR.on=true;DR.el.classList.add('dragging');document.body.classList.add('drg');DR.raf=requestAnimationFrame(dragLoop)}
  e.preventDefault()});
 function dragLoop(){if(!DR||!DR.on)return;var y=DR.cy;
- if(DR.o.axis==='y'){if(y<70)scrollBy(0,-Math.ceil((70-y)/4));else if(y>innerHeight-70)scrollBy(0,Math.ceil((y-(innerHeight-70))/4))}
+ if(DR.o.axis!=='x'){if(y<70)scrollBy(0,-Math.ceil((70-y)/4));else if(y>innerHeight-70)scrollBy(0,Math.ceil((y-(innerHeight-70))/4))}
  dragPlace();DR.raf=requestAnimationFrame(dragLoop)}
 function dragPlace(){var o=DR.o,el=DR.el,items=[].slice.call(o.box.querySelectorAll(o.sel)).filter(function(n){return n!==el}),best=null,bd=1e12;
  items.forEach(function(n){var q=n.getBoundingClientRect(),dx=DR.cx-(q.left+q.width/2),dy=DR.cy-(q.top+q.height/2),d=o.axis==='y'?dy*dy:dx*dx+dy*dy*4;if(d<bd){bd=d;best=n}});
