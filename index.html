@@ -409,6 +409,8 @@ footer{border-top:2px solid var(--ink);background:var(--card);padding-top:3.2rem
 
 .rv{opacity:0;transform:translateY(30px);transition:opacity .7s,transform .7s}
 .rv.in{opacity:1;transform:none}
+/* hero is above the fold: show it immediately, do not wait for JS/Supabase to add .in */
+.hero .rv{opacity:1;transform:none;transition:none}
 
 @media(max-width:820px){
  .hero-grid{grid-template-columns:1fr}
