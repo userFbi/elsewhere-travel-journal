@@ -795,7 +795,7 @@ footer{content-visibility:auto;contain-intrinsic-size:auto 420px}
 
 <footer>
  <div class="wrap fgrid">
-  <div class="fb"><a class="logo" href="#home">TRAVEL JOURNAL<span class="star">✺</span></a><p>Collecting moments, one journey at a time.</p><a class="arrow" href="https://elsewhere-i5yy.onrender.com/gallery.html" target="_blank" rel="noopener">Explore Moments <span aria-hidden="true">↗</span></a></div>
+  <div class="fb"><a class="logo" href="#home">TRAVEL JOURNAL<span class="star">✺</span></a><p>Collecting moments, one journey at a time.</p><a class="arrow" href="/gallery" target="_blank" rel="noopener">Explore Moments <span aria-hidden="true">↗</span></a></div>
   <div class="fl"><b>explore</b><a href="#about">about</a><a href="#works">journeys</a><a href="#playground">playground</a><a href="#guides">guides</a><a href="#places">places</a></div>
   <div class="fl"><b>find me</b><a href="https://www.instagram.com/tushhar___/" target="_blank" rel="noopener">instagram ↗</a><a href="https://www.youtube.com/" target="_blank" rel="noopener">youtube ↗</a><a href="https://www.facebook.com/" target="_blank" rel="noopener">facebook ↗</a></div>
  </div>
@@ -883,7 +883,7 @@ function __start(){
  function srcs(u){if(!/images\.unsplash\.com/.test(u)||!/[?&]w=\d+/.test(u))return'';return' srcset="'+[480,800,1100].map(function(w){return esc(u.replace(/([?&]w=)\d+/,'$1'+w))+' '+w+'w'}).join(', ')+'" sizes="(max-width:767px) 86vw, 40vw"'}
  var hsT=document.querySelector('.hs__track');
  TRIPS.forEach(function(t){var a=document.createElement('article');a.className='hs__item';
-  a.innerHTML='<div class="hs__frame box"><span class="note" style="background:var('+(t.c||'--yellow')+')">'+esc(t.note)+'</span><img decoding="async" src="'+esc(t.img)+'"'+srcs(t.img)+' alt="'+esc(t.alt)+'" loading="lazy" draggable="false"></div><div class="hs__text"><span class="hs__label">'+esc(t.when)+'</span><small>'+esc(t.place)+'</small><h3>'+esc(t.t)+'</h3><p>'+esc(t.desc)+'</p><a class="arrow" href="gallery.html?trip='+encodeURIComponent(t.id)+'">View photos \u2197</a></div>';hsT.appendChild(a)});
+  a.innerHTML='<div class="hs__frame box"><span class="note" style="background:var('+(t.c||'--yellow')+')">'+esc(t.note)+'</span><img decoding="async" src="'+esc(t.img)+'"'+srcs(t.img)+' alt="'+esc(t.alt)+'" loading="lazy" draggable="false"></div><div class="hs__text"><span class="hs__label">'+esc(t.when)+'</span><small>'+esc(t.place)+'</small><h3>'+esc(t.t)+'</h3><p>'+esc(t.desc)+'</p><a class="arrow" href="/gallery/'+encodeURIComponent(t.id)+'">View photos \u2197</a></div>';hsT.appendChild(a)});
  // ---- Bookshelf: one book per real trip (newest first), rows fill to the shelf width ----
  var spines=[];
  var SH=(function(){
@@ -1052,7 +1052,7 @@ function __start(){
   $('vft').innerHTML=d.t.split('|').join('<br>');$('vft').className=d.long?'long':'';$('vfw').textContent=d.when;
   $('vhero').src=d.img;$('vheroM').src=d.img;$('vhero').alt=$('vheroM').alt=d.name;$('vcap').textContent=d.name.replace('&amp;','&')+' — '+d.place;
   $('vk').textContent='Travel guide · 0'+(k+1)+' / 0'+spines.length;$('vnote').textContent=d.note;
-  $('vlink').href='gallery.html?trip='+encodeURIComponent(d.trip);$('vname').innerHTML=d.name;$('vname').className=d.long?'long':'';$('vpl').textContent=d.when+' · '+d.place;$('vd').textContent=d.desc;fitTitle()}
+  $('vlink').href='/gallery/'+encodeURIComponent(d.trip);$('vname').innerHTML=d.name;$('vname').className=d.long?'long':'';$('vpl').textContent=d.when+' · '+d.place;$('vd').textContent=d.desc;fitTitle()}
  function flyVec(){var r=(curSrc||curS).getBoundingClientRect(),b=fly.getBoundingClientRect(),h=ob.offsetHeight||1;
   return{dx:r.left+r.width/2-(b.left+b.width/2),dy:r.top+r.height/2-(b.top+b.height/2),sc:Math.max(.18,r.height/h)}}
  var tms=[],closing=false;
@@ -1171,7 +1171,7 @@ function __start(){
   }
   function driveLink(it){var r=it.p.raw||{},k,v,any='';
    for(k in r){v=r[k];if(typeof v==='string'&&/^https?:\/\//i.test(v)){if(/drive\.google|docs\.google|photos\.app\.goo|photos\.google/i.test(v))return v;if(!any)any=v}}
-   return any||('gallery.html?trip='+encodeURIComponent(MT[it.j-1].id))}
+   return any||('/gallery/'+encodeURIComponent(MT[it.j-1].id))}
   function refreshSel(){
    PL.forEach(function(it){var e=it.m.getElement();if(e&&e.firstChild)e.firstChild.classList.toggle('sel',it.g===selG);it.m.setZIndexOffset(it.g===selG?2000:(it.j===cur?1000:0))});
    var c=$('pcard');if(!selG){c.hidden=true;return}
@@ -1192,7 +1192,7 @@ function __start(){
     PL.push({g:g,j:j.n,p:p,m:m});m.on('click',function(){sel(g,true)});mk[j.n].push(m)});
    var route=j.places.map(function(p){return p.n.replace(/&/g,'&amp;')}).join(' \u2192 ');
    var b=document.createElement('div');b.className='le';b.style.setProperty('--c','var('+j.c+')');
-   b.innerHTML='<button class="le-h" type="button" aria-expanded="false"><span class="pn">'+(j.rnd?'<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-label="Random place"><path d="M12 22s7-6.2 7-12a7 7 0 0 0-14 0c0 5.8 7 12 7 12z"/><circle cx="12" cy="10" r="2.5"/></svg>':j.dn)+'</span><span class="le-m"><span class="le-date">'+j.w+'</span><small>'+j.pl+' \u00b7 '+j.places.length+' place'+(j.places.length>1?'s':'')+'</small><strong>'+j.t.replace(/&/g,'&amp;')+'</strong></span></button><div class="le-b"><div class="le-i">'+(j.d?'<p>'+j.d+'</p>':'')+'<p><b>Places:</b> '+route+'</p><a class="arrow" href="gallery.html?trip='+encodeURIComponent(MT[j.n-1].id)+'">View photos <span aria-hidden="true">↗</span></a></div></div>';
+   b.innerHTML='<button class="le-h" type="button" aria-expanded="false"><span class="pn">'+(j.rnd?'<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-label="Random place"><path d="M12 22s7-6.2 7-12a7 7 0 0 0-14 0c0 5.8 7 12 7 12z"/><circle cx="12" cy="10" r="2.5"/></svg>':j.dn)+'</span><span class="le-m"><span class="le-date">'+j.w+'</span><small>'+j.pl+' \u00b7 '+j.places.length+' place'+(j.places.length>1?'s':'')+'</small><strong>'+j.t.replace(/&/g,'&amp;')+'</strong></span></button><div class="le-b"><div class="le-i">'+(j.d?'<p>'+j.d+'</p>':'')+'<p><b>Places:</b> '+route+'</p><a class="arrow" href="/gallery/'+encodeURIComponent(MT[j.n-1].id)+'">View photos <span aria-hidden="true">↗</span></a></div></div>';
    b.firstChild.onclick=function(){pick(j.n,true)};list.appendChild(b);items[j.n]=b;
   });
   PL.sort(function(a,b){return a.g-b.g});
@@ -1208,6 +1208,10 @@ function __start(){
  (function(){
   try{history.scrollRestoration='manual'}catch(e){}
   var h=''; try{h=decodeURIComponent((location.hash||'').slice(1))}catch(e){}
+  try{var go=sessionStorage.getItem('tj-go');if(go){sessionStorage.removeItem('tj-go');h=go}else if(!h){var nv=performance.getEntriesByType('navigation')[0];if(nv&&nv.type==='reload')h=sessionStorage.getItem('tj-sec')||''}}catch(e){}
+  if(location.hash){try{history.replaceState(null,'',location.pathname+location.search)}catch(e){}}
+  // clicking an in-page link scrolls there but never writes #section into the address bar
+  document.addEventListener('click',function(e){var a=e.target.closest&&e.target.closest('a[href^="#"]');if(!a)return;var id=decodeURIComponent(a.getAttribute('href').slice(1)),el=id&&document.getElementById(id);if(!el)return;e.preventDefault();user=true;el.scrollIntoView({behavior:'smooth',block:'start'})});
   var user=false,ids=['home','about','works','playground','guides','places'],t=null;
   function align(){if(user||!h)return;var el=document.getElementById(h);if(el)window.scrollTo({top:el.getBoundingClientRect().top+window.pageYOffset,behavior:'instant'})}
   ['wheel','touchstart','keydown','pointerdown'].forEach(function(ev){addEventListener(ev,function(){user=true},{passive:true,once:true})});
@@ -1218,7 +1222,7 @@ function __start(){
   addEventListener('scroll',function(){if(!user)return;clearTimeout(t);t=setTimeout(function(){
    var mid=innerHeight*.5,cur='';
    ids.forEach(function(id){var el=document.getElementById(id);if(!el)return;var r=el.getBoundingClientRect();if(r.top<=mid&&r.bottom>mid)cur=id});
-   if(cur&&('#'+cur)!==location.hash){try{history.replaceState(null,'','#'+cur)}catch(e){}}
+   if(cur){try{sessionStorage.setItem('tj-sec',cur)}catch(e){}}
   },150)},{passive:true});
  })();
 }

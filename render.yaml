@@ -1,0 +1,27 @@
+services:
+  - type: web
+    name: elsewhere
+    runtime: static
+    buildCommand: echo "static site"
+    staticPublishPath: .
+    routes:
+      # old links -> clean URLs
+      - type: redirect
+        source: /index.html
+        destination: /
+      - type: redirect
+        source: /gallery.html
+        destination: /gallery
+      - type: redirect
+        source: /admin.html
+        destination: /admin
+      # clean URLs -> real files
+      - type: rewrite
+        source: /gallery
+        destination: /gallery.html
+      - type: rewrite
+        source: /gallery/*
+        destination: /gallery.html
+      - type: rewrite
+        source: /admin
+        destination: /admin.html

@@ -2,7 +2,7 @@
    - Pages & scripts: network-first (always fresh, falls back to cache offline)
    - Images / fonts / CDN libs: cache-first with background refresh
    - Admin pages, uploads (non-GET) and API calls are never touched */
-const VERSION = 'tj-v2';
+const VERSION = 'tj-v3';
 const SHELL = `${VERSION}-shell`;
 const MEDIA = `${VERSION}-media`;
 const MAX_MEDIA = 120;

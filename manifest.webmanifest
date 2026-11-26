@@ -39,7 +39,7 @@
       "name": "Admin panel",
       "short_name": "Admin",
       "description": "Manage trips, photos and places",
-      "url": "admin.html",
+      "url": "/admin",
       "icons": [
         {
           "src": "icons/admin-192.png",
